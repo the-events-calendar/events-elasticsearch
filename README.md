@@ -1,2 +1,2 @@
-# events-elasticsearch
-Performance enhancements for The Events Calendar events
+# events-community-tickets
+Tickets for Community Events

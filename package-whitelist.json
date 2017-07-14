@@ -1,0 +1,7 @@
+[
+  "events-community-tickets.php",
+  "src/**/*",
+  "lang/**/*",
+  "license.txt",
+  "readme.txt"
+]
