@@ -1,4 +1,4 @@
-=== The Events Calendar: Community Tickets ===
+=== The Events Calendar: Elasticsearch Integration ===
 
 Contributors: ModernTribe, barry.hughes, bordoni, borkweb, brianjessee, brook-tribe, faction23, geoffgraham, ggwicz, jazbek, jbrinley, joshlimecuda, leahkoerper, lucatume, mastromktg, mat-lipe, mdbitz, neillmcshea, nicosantos, peterchester, reid.peifer, roblagatta, ryancurban, shane.pearlman, thatdudebutch,  zbtirrell
 Tags: widget, events, simple, tooltips, grid, month, list, calendar, event, venue, community, registration, api, dates, date, plugin, posts, sidebar, template, theme, time, google maps, google, maps, conference, workshop, concert, meeting, seminar, summit, forum, shortcode, The Events Calendar, The Events Calendar PRO, Community Events, tickets, RSVP, registration
@@ -8,11 +8,11 @@ Tested up to: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Community Tickets is an add-on for The Events Calendar, Community Events, Event Tickets, and Tickets Plus. Users submitting events via Community Events can now add tickets to their events, and the site admin can collect fees from ticket sales.
+Elasticsearch Integration is an add-on for The Events Calendar, Community Events, Event Tickets, and Tickets Plus. Users submitting events via Community Events can now add tickets to their events, and the site admin can collect fees from ticket sales.
 
 == Description ==
 
-= The Events Calendar: Community Tickets =
+= The Events Calendar: Elasticsearch Integration =
 
 * Frontend user ticket creation for events
 * Users can create free or paid tickets
@@ -26,7 +26,7 @@ Note: you'll need to have the latest versions of <a href="http://m.tri.be/3j">Th
 
 1. From the dashboard of your site, navigate to Plugins --> Add New.
 2. Select the Upload option and hit "Choose File."
-3. When the popup appears select the the-events-calendar-community-tickets.x.x.zip file from your desktop. (The 'x.x' will change depending on the current version number).
+3. When the popup appears select the the-events-calendar-elasticsearch.x.x.zip file from your desktop. (The 'x.x' will change depending on the current version number).
 4. Follow the on-screen instructions and wait as the upload completes.
 5. When it's finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 6. For access to new updates, make sure you have added your valid License Key under Events --> Settings --> Licenses.
@@ -43,15 +43,15 @@ Note: you'll need to have the latest versions of <a href="http://m.tri.be/3j">Th
 
 == Documentation ==
 
-Community Tickets extends the functionality of Modern Tribe's The Events Calendar (http://m.tri.be/3j), Community Events, Event Tickets, and Tickets Plus to allow for frontend event submission with tickets on your WordPress site.
+Elasticsearch Integration extends the functionality of Modern Tribe's The Events Calendar (http://m.tri.be/3j), Community Events, Event Tickets, and Tickets Plus to allow for frontend event submission with tickets on your WordPress site.
 
 All of our online documentation can be found on <a href="http://m.tri.be/eu">our documentation site</a>.
 
 Some docs you may find particularly useful are:
 
-* <a href="http://m.tri.be/18l-">New User Primer: Community Tickets</a>
-* <a href="http://m.tri.be/18m1">Configuring Community Tickets</a>
-* <a href="http://m.tri.be/18m0">Community Tickets: Tracking sales & getting paid</a>
+* <a href="http://m.tri.be/18l-">New User Primer: Elasticsearch Integration</a>
+* <a href="http://m.tri.be/18m1">Configuring Elasticsearch Integration</a>
+* <a href="http://m.tri.be/18m0">Elasticsearch Integration: Tracking sales & getting paid</a>
 
 Tutorials are available at http://m.tri.be/44
 
@@ -63,7 +63,7 @@ Please visit the forum for questions or comments: http://m.tri.be/18ku
 
 = Are there any troubleshooting steps you'd suggest I try that might resolve my issue before I post a new thread? =
 
-First, make sure that you're running the latest version of The Events Calendar, Community Tickets, Event Tickets, and Tickets Plus. If you've got any other add-ons, make sure those are current / running the latest code as well.
+First, make sure that you're running the latest version of The Events Calendar, Elasticsearch Integration, Event Tickets, and Tickets Plus. If you've got any other add-ons, make sure those are current / running the latest code as well.
 
 The most common issues we see are either plugin or theme conflicts. You can test if a plugin or theme is conflicting by manually deactivating other plugins until just The Events Calendar is running on your site. If the issue persists from there, revert to the default Twenty Fifteen theme. If the issue is resolved after deactivating a specific plugin or your theme, you'll know that is the source of the conflict.
 
@@ -71,7 +71,7 @@ Note that we aren't going to say "tough luck" if you identify a plugin/theme con
 
 = I'm still stuck. Where do I go to file a bug or ask a question? =
 
-If you're a Community Tickets user, you're entitled access to our actively-monitored <a href="http://m.tri.be/3x">forums</a> at the theeventscalendar.com website. We can provide a deeper level of support here and hit these forums on a daily basis during the work week. You will receive a reply within 24-48 hours (during the week).
+If you're a Elasticsearch Integration user, you're entitled access to our actively-monitored <a href="http://m.tri.be/3x">forums</a> at the theeventscalendar.com website. We can provide a deeper level of support here and hit these forums on a daily basis during the work week. You will receive a reply within 24-48 hours (during the week).
 
 == Contributors ==
 
@@ -147,7 +147,7 @@ Our Premium Plugins:
 * <a href="http://m.tri.be/18nq" target="_blank">Event Tickets Plus</a>
 * <a href="http://m.tri.be/2e" target="_blank">The Events Calendar: Eventbrite Tickets</a>
 * <a href="http://m.tri.be/2g" target="_blank">The Events Calendar: Community Events</a>
-* <a href="http://m.tri.be/18m2" target="_blank">The Events Calendar: Community Tickets</a>
+* <a href="http://m.tri.be/18m2" target="_blank">The Events Calendar: Elasticsearch Integration</a>
 * <a href="http://m.tri.be/2h" target="_blank">The Events Calendar: Facebook Events</a>
 * <a href="http://m.tri.be/fa" target="_blank">The Events Calendar: Filter Bar</a>
 * <a href="http://m.tri.be/18h9" target="_blank">The Events Calendar: iCal Importer</a>
@@ -163,7 +163,7 @@ Our Premium Plugins:
 * Tweak - Compatibility with version 4.5 of Community Events
 * Tweak - Added actions: `tribe_events_community_section_before_tickets`, `tribe_events_community_section_after_tickets`
 * Tweak - Removed actions: `tribe_events_community_after_the_tickets`
-* Language - 0 new strings added, 14 updated, 0 fuzzied, and 0 obsoleted [events-community-tickets]
+* Language - 0 new strings added, 14 updated, 0 fuzzied, and 0 obsoleted [events-elasticsearch]
 
 = [4.4.2] 2017-05-17 =
 
@@ -222,7 +222,7 @@ Our Premium Plugins:
 
 = [4.0.3] 2016-02-17 =
 
-* Fix - Prevents Community Tickets to output HTML on the CSV exporting tool
+* Fix - Prevents Elasticsearch Integration to output HTML on the CSV exporting tool
 
 = [4.0.2] 2015-12-16 =
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Manage upgrades for the Tribe Events Community Tickets plugin
+ * Manage upgrades for the Tribe Events Elasticsearch Integration plugin
  *
  */
 
@@ -9,16 +9,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( '-1' );
 }
 
-if ( class_exists( 'Tribe__Events__Community__Tickets__PUE' ) ) {
+if ( class_exists( 'Tribe__Events__Elasticsearch__PUE' ) ) {
 	return;
 }
 
-class Tribe__Events__Community__Tickets__PUE {
+class Tribe__Events__Elasticsearch__PUE {
 
 	/**
 	 * @var string slug used for the plugin update engine
 	 */
-	private static $pue_slug = 'events-community-tickets';
+	private static $pue_slug = 'events-elasticsearch';
 
 	/**
 	 * @var string plugin update url

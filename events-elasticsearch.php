@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: The Events Calendar: Elasticsearch integration
+Plugin Name: The Events Calendar: Elasticsearch Integration
 Description: This add-on provides Elasticsearch integration for The Events Calendar with the ElasticPress plugin.
 Version: 0.1
 Author: Modern Tribe, Inc.

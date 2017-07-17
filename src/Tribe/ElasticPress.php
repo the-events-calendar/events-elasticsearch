@@ -1,87 +1,28 @@
 <?php
+/**
+ * Handle ElasticPress integration with hooks and indexing.
+ */
 
-class Tribe__Events__Elasticsearch__Main {
+// Don't load directly
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
 
-	/**
-	 * Option name to save all plugin options under
-	 * as a serialized array.
-	 */
-	const OPTIONNAME = 'tribe_events_elasticsearch_options';
+if ( class_exists( 'Tribe__Events__Elasticsearch__ElasticPress' ) ) {
+	return;
+}
 
-	/**
-	 * The current version of Elasticsearch Integration.
-	 *
-	 * @var string
-	 */
-	const VERSION = '0.1';
-
-	/**
-	 * Required Events Calendar Version.
-	 *
-	 * @var string
-	 */
-	const REQUIRED_TEC_VERSION = '4.5.4';
-
-	/**
-	 * Prefix to use for hooks.
-	 *
-	 * @var string
-	 */
-	private $hook_prefix = 'tribe-events-elasticsearch-';
-
-	/**
-	 * PUE object for handling updates.
-	 *
-	 * @var Tribe__Events__Elasticsearch__PUE
-	 */
-	private $pue;
-
-	/**
-	 * Option defaults to use.
-	 *
-	 * @var array
-	 */
-	public $option_defaults = array(
-		'enable_events_elasticsearch' => true,
-	);
-
-	/**
-	 * Plugin directory name.
-	 *
-	 * @var string
-	 */
-	public $plugin_dir;
-
-	/**
-	 * Plugin local path.
-	 *
-	 * @var string
-	 */
-	public $plugin_path;
-
-	/**
-	 * Plugin slug.
-	 *
-	 * @var string
-	 */
-	public $plugin_slug;
-
-	/**
-	 * Plugin url.
-	 *
-	 * @var string
-	 */
-	public $plugin_url;
+class Tribe__Events__Elasticsearch__ElasticPress {
 
 	/**
 	 * Singleton to instantiate the class.
 	 *
-	 * @return Tribe__Events__Elasticsearch__Main
+	 * @return Tribe__Events__Elasticsearch__ElasticPress
 	 */
 	public static function instance() {
 
 		/**
-		 * @var $instance null|Tribe__Events__Elasticsearch__Main
+		 * @var $instance null|Tribe__Events__Elasticsearch__ElasticPress
 		 */
 		static $instance;
 
@@ -98,189 +39,137 @@ class Tribe__Events__Elasticsearch__Main {
 	 */
 	public function __construct() {
 
-		$this->plugin_path = trailingslashit( EVENTS_ELASTICSEARCH_DIR );
-		$this->plugin_dir  = trailingslashit( basename( $this->plugin_path ) );
-		$this->plugin_url  = trailingslashit( plugins_url( $this->plugin_dir ) );
-		$this->plugin_slug = 'events-elasticsearch';
-
-		// Hook to 11 to make sure this gets initialized after tec
-		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ), 11 );
+		if ( class_exists( 'Tribe__Events__Main' ) ) {
+			$this->add_hooks();
+		}
 
 	}
 
 	/**
-	 * Bootstrap the plugin with the plugins_loaded action.
+	 * Add hooks for ElasticPress integration.
 	 */
-	public function plugins_loaded() {
+	public function add_hooks() {
 
-		$this->autoloading();
-		$this->register_active_plugin();
+		// Handle auto integration of ElasticPress for TEC post types
+		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
 
-		$mopath = $this->plugin_dir . 'lang/';
-		$domain = 'tribe-events-elasticsearch';
+		// Whitelist post types
+		add_filter( 'ep_indexable_post_types', array( $this, 'whitelist_post_types' ), 10, 1 );
 
-		if ( class_exists( 'Tribe__Main' ) && ! is_admin() && ! class_exists( 'Tribe__Events__Elasticsearch__PUE__Helper' ) ) {
-			tribe_main_pue_helper();
-		}
+		// Whitelist taxonomies
+		add_filter( 'ep_sync_taxonomies', array( $this, 'whitelist_taxonomies' ), 10, 2 );
 
-		// If we don't have Common classes load the old fashioned way
-		if ( ! class_exists( 'Tribe__Main' ) ) {
-			load_plugin_textdomain( $domain, false, $mopath );
-		} else {
-			// This will load `wp-content/languages/plugins` files first
-			Tribe__Main::instance()->load_text_domain( $domain, $mopath );
-		}
+		// Whitelist meta keys
+		add_filter( 'ep_prepare_meta_whitelist_key', array( $this, 'whitelist_meta_keys' ), 10, 3 );
 
-		if ( ! $this->should_run() ) {
-			// Display notice indicating which plugins are required
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+	}
 
+	/**
+	 * Handle auto integration of ElasticPress for TEC post types.
+	 *
+	 * @todo Add option for auto integration for all queries, default on
+	 * @todo Add option for auto integration for admin queries, default off
+	 *
+	 * @param WP_Query $query
+	 */
+	public function auto_integrate( $query ) {
+
+		// Skip our logic if it's already integrated
+		if ( true === $query->get( 'ep_integrate', false ) ) {
 			return;
 		}
 
-		$this->pue = new Tribe__Events__Elasticsearch__PUE( "{$this->plugin_path}/events-elasticsearch.php" );
+		/**
+		 * Enable admin integration for TEC post types.
+		 *
+		 * @param boolean  $admin_integration Whether to enable admin integration for TEC
+		 * @param WP_Query $query             Current WP_Query object
+		 */
+		$admin_integration = apply_filters( 'tribe_event_elasticpress_admin', false, $query );
 
-	}
-
-	/**
-	 * Registers this plugin as being active for other tribe plugins and extensions.
-	 *
-	 * @return bool Indicates if Tribe Common wants the plugin to run
-	 */
-	public function register_active_plugin() {
-
-		if ( ! function_exists( 'tribe_register_plugin' ) ) {
-			return true;
-		}
-
-		return tribe_register_plugin( EVENTS_ELASTICSEARCH_FILE, __CLASS__, self::VERSION );
-
-	}
-
-	/**
-	 * Sets up class autoloading for this plugin
-	 */
-	public function autoloading() {
-
-		if ( ! class_exists( 'Tribe__Autoloader' ) ) {
+		if ( is_admin() && true !== $admin_integration ) {
 			return;
 		}
 
-		$autoloader = Tribe__Autoloader::instance();
-		$autoloader->register_prefix( 'Tribe__Events__Elasticsearch__', dirname( __FILE__ ), 'events-elasticsearch' );
-		$autoloader->register_autoloader();
+		// Get list of queried post types
+		$queried_post_types = (array) $query->get( 'post_type', array() );
+
+		// Get list of TEC post types
+		$tec_post_types = $this->whitelist_post_types();
+
+		// Check if TEC post types are in the currently queried post types list
+		foreach ( $tec_post_types as $tec_post_type ) {
+			if ( in_array( $tec_post_type, $queried_post_types, true ) ) {
+				$query->set( 'ep_integrate', true );
+
+				break;
+			}
+		}
 
 	}
 
 	/**
-	 * Each plugin required by this one to run
+	 * Whitelist the TEC post types for indexing.
 	 *
-	 * @return array {
-	 *      List of required plugins.
+	 * @param array $post_types List of post types to include
 	 *
-	 *      @param string $short_name   Shortened title of the plugin
-	 *      @param string $class        Main PHP class
-	 *      @param string $thickbox_url URL to download plugin
-	 *      @param string $min_version  Optional. Minimum version of plugin needed.
-	 *      @param string $ver_compare  Optional. Constant that stored the currently active version.
-	 * }
+	 * @return array
 	 */
-	protected function get_requisite_plugins() {
+	public function whitelist_post_types( $post_types = array() ) {
 
-		$requisite_plugins = array(
-			array(
-				'short_name'   => 'The Events Calendar',
-				'class'        => 'Tribe__Events__Main',
-				'thickbox_url' => 'plugin-install.php?tab=plugin-information&plugin=the-events-calendar&TB_iframe=true',
-				'min_version'  => self::REQUIRED_ET_VERSION,
-				'ver_compare'  => 'Tribe__Events__Main::VERSION',
-			),
-			array(
-				'short_name'   => 'ElasticPress',
-				'class'        => 'EP_API',
-				'thickbox_url' => 'plugin-install.php?tab=plugin-information&plugin=elasticpress&TB_iframe=true',
-			),
-		);
+		$post_types[ Tribe__Events__Main::POSTTYPE ]            = Tribe__Events__Main::POSTTYPE;
+		$post_types[ Tribe__Events__Main::VENUE_POST_TYPE ]     = Tribe__Events__Main::VENUE_POST_TYPE;
+		$post_types[ Tribe__Events__Main::ORGANIZER_POST_TYPE ] = Tribe__Events__Main::ORGANIZER_POST_TYPE;
 
-		return $requisite_plugins;
+		return $post_types;
 
 	}
 
 	/**
-	 * Should the plugin run? Are all of the appropriate items in place?
-	 */
-	public function should_run() {
-
-		foreach ( $this->get_requisite_plugins() as $plugin ) {
-			if ( ! class_exists( $plugin['class'] ) ) {
-				return false;
-			}
-
-			if ( ! isset( $plugin['min_version'] ) || ! isset( $plugin['ver_compare'] ) ) {
-				continue;
-			}
-
-			$active_version = constant( $plugin['ver_compare'] );
-
-			if ( null === $active_version ) {
-				return false;
-			}
-
-			if ( version_compare( $plugin['min_version'], $active_version, '>=' ) ) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}
-
-	/**
-	 * Hooked to the admin_notices action
-	 */
-	public function admin_notices() {
-
-		if ( ! current_user_can( 'activate_plugins' ) ) {
-			return;
-		}
-
-		$links = array();
-
-		foreach ( $this->get_requisite_plugins() as $plugin ) {
-			$links[] = sprintf( '<a href="%1$s" class="thickbox" title="%2$s">%3$s</a>', esc_attr( $plugin['thickbox_url'] ), esc_attr( $plugin['short_name'] ), esc_html( $plugin['short_name'] ) );
-		}
-
-		$message = sprintf( esc_html__( 'To begin using The Events Calendar: Elasticsearch Integration, please install and activate the latest versions of %1$s, %2$s, %3$s, %4$s, and %5$s.', 'tribe-events-community-events' ), $links[0], $links[1], $links[2], $links[3], $links[4] );
-
-		printf( '<div class="error"><p>%s</p></div>', $message );
-
-	}
-
-	/**
-	 * returns whether or not community tickets is enabled in settings
-	 */
-	public function is_enabled() {
-
-		$options = get_option( self::OPTIONNAME );
-
-		if ( empty( $options['enable_events_elasticsearch'] ) ) {
-			return false;
-		}
-
-		return true;
-
-	}
-
-	/**
-	 * Filter the community settings tab to include community tickets settings
+	 * Whitelist the TEC taxonomies for indexing.
 	 *
-	 * @param $settings array Field settings for the community settings tab in the dashboard
+	 * @param array        $taxonomies List of taxonomies to include
+	 * @param WP_Post|null $post       Post object
+	 *
+	 * @return array
 	 */
-	public function events_elasticsearch_settings( $settings ) {
+	public function whitelist_taxonomies( $taxonomies = array(), $post = null ) {
 
-		include $this->plugin_path . 'src/admin-views/elasticsearch-options.php';
+		// Only include TEC taxonomies if this is a TEC post type (or null $post)
+		if ( null === $post || Tribe__Events__Main::POSTTYPE === $post->post_type ) {
+			// Only include if it's not arleady included
+			if ( ! in_array( Tribe__Events__Main::TAXONOMY, $taxonomies, true ) ) {
+				$taxonomies[] = Tribe__Events__Main::TAXONOMY;
+			}
+		}
 
-		return $settings;
+		return $taxonomies;
+
+	}
+
+	/**
+	 * Whitelist the TEC protected meta keys for indexing.
+	 *
+	 * @param boolean|false $is_whitelisted Whether the meta key is whitelisted (false by default)
+	 * @param string        $key            Meta key
+	 * @param WP_Post       $post           Post object
+	 *
+	 * @return boolean array
+	 */
+	public function whitelist_meta_keys( $is_whitelisted, $key, $post ) {
+
+		// Get list of TEC post types
+		$tec_post_types = $this->whitelist_post_types();
+
+		// Only include TEC taxonomies if this is a TEC post type (or null $post)
+		if ( null === $post || in_array( $post->post_type, $tec_post_types, true ) ) {
+			// Only include protected meta keys that start with the TEC post type prefixes
+			if ( preg_match( '/^(_Event|_Venue|_Organizer)/i', $key ) ) {
+				$is_whitelisted = true;
+			}
+		}
+
+		return $is_whitelisted;
 
 	}
 

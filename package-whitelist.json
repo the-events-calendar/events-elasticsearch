@@ -1,5 +1,5 @@
 [
-  "events-community-tickets.php",
+  "events-elasticsearch.php",
   "src/**/*",
   "lang/**/*",
   "license.txt",

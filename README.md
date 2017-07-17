@@ -1,2 +1,2 @@
-# events-community-tickets
+# events-elasticsearch
 Tickets for Community Events
