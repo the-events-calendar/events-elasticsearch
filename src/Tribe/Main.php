@@ -43,6 +43,8 @@ class Tribe__Events__Elasticsearch__Main {
 	 */
 	public $option_defaults = array(
 		'enable_events_elasticsearch' => true,
+		'enable_ep_integrate'         => true,
+		'enable_ep_integrate_admin'   => false,
 	);
 
 	/**
@@ -260,11 +262,13 @@ class Tribe__Events__Elasticsearch__Main {
 	}
 
 	/**
-	 * returns whether or not community tickets is enabled in settings
+	 * Check whether the plugin is enabled.
+	 *
+	 * @return boolean
 	 */
 	public function is_enabled() {
 
-		$options = get_option( self::OPTIONNAME );
+		$options = get_option( self::OPTIONNAME, $this->option_defaults );
 
 		if ( empty( $options['enable_events_elasticsearch'] ) ) {
 			return false;
@@ -275,9 +279,49 @@ class Tribe__Events__Elasticsearch__Main {
 	}
 
 	/**
-	 * Filter the community settings tab to include community tickets settings
+	 * Get the option from the main plugin options array.
 	 *
-	 * @param $settings array Field settings for the community settings tab in the dashboard
+	 * @param string     $option_name
+	 * @param mixed|null $default
+	 *
+	 * @return mixed|null
+	 */
+	public static function get_option( $option_name, $default = null ) {
+
+		$main = self::instance();
+
+		$options = get_option( self::OPTIONNAME, $main->option_defaults );
+
+		$option_value = null;
+
+		if ( isset( $options[ $option_name ] ) ) {
+			$option_value = $options[ $option_name ];
+		}
+
+		return $option_value;
+
+	}
+
+	/**
+	 * Update the option for the main plugin options array.
+	 *
+	 * @param string $option_name
+	 * @param mixed  $option_value
+	 */
+	public static function update_option( $option_name, $option_value ) {
+
+		$options = get_option( self::OPTIONNAME );
+
+		$options[ $option_name ] = $option_value;
+
+		update_option( self::OPTIONNAME, $options, 'yes' );
+
+	}
+
+	/**
+	 * Filter the community settings tab to include the plugin settings
+	 *
+	 * @param $settings array Field settings for the settings tab in the dashboard
 	 */
 	public function events_elasticsearch_settings( $settings ) {
 
