@@ -317,25 +317,25 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			// @todo Setup EP date query handler to create args
 
 			// OLD SQL
-			$start_clause  = $wpdb->prepare( "( %s <= $event_start_date AND $event_start_date <= %s )", $start_date, $end_date );
+			$start_clause  = $wpdb->prepare( "( %s <= meta._EventStartDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date );
 			// OR THIS
-			$end_clause    = $wpdb->prepare( "( %s <= $event_end_date AND $event_start_date <= %s )", $start_date, $end_date );
+			$end_clause    = $wpdb->prepare( "( %s <= meta._EventEndDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date );
 			// OR THIS
-			$within_clause = $wpdb->prepare( "( $event_start_date < %s AND %s <= $event_end_date )", $start_date, $end_date );
+			$within_clause = $wpdb->prepare( "( meta._EventStartDate.date < %s AND %s <= meta._EventEndDate.date )", $start_date, $end_date );
 		} elseif ( '' !== $start_date ) {
 			// Handle partial date range
 
 			// @todo Setup EP date query handler to create args
 
 			// OLD SQL
-			$start_clause  = $wpdb->prepare( "%s <= $event_start_date", $start_date );
+			$start_clause  = $wpdb->prepare( "%s <= meta._EventStartDate.date", $start_date );
 			// OR this
-			$within_clause = $wpdb->prepare( "( $event_start_date <= %s AND %s <= $event_end_date )", $start_date, $start_date );
+			$within_clause = $wpdb->prepare( "( meta._EventStartDate.date <= %s AND %s <= meta._EventEndDate.date )", $start_date, $start_date );
 
 			if ( $query->is_singular() && $query->get( 'eventDate' ) ) {
 				// AND this
 				$tomorrow        = date( 'Y-m-d', strtotime( $query->get( 'eventDate' ) . ' +1 day' ) );
-				$tomorrow_clause = $wpdb->prepare( "$event_start_date < %s", $tomorrow );
+				$tomorrow_clause = $wpdb->prepare( "meta._EventStartDate.date < %s", $tomorrow );
 			}
 		} elseif ( '' !== $end_date ) {
 			// See Tribe__Events__Elasticsearch__ElasticPress::add_ep_query_integration_where
