@@ -68,6 +68,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Remove TEC wpdb overrides for WP_Query
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'remove_tec_wpdb_overrides' ) );
 
+		// Override custom SQL query used by TEC for month view template.
+		add_action( 'tribe_events_month_get_events_in_month', array( $this, 'override_tec_events_in_month' ), 10, 3 );
+
 		// Override ElasticPress post_date used with _EventStartDate
 		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
 
@@ -261,6 +264,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function add_ep_query_integration_orderby( $query ) {
 
+		/**
+		 * @var $wpdb wpdb
+		 */
+		global $wpdb;
+
 		$orderby = $query->get( 'orderby' );
 		$order   = $query->get( 'order' );
 
@@ -268,6 +276,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		if ( 'event_date' === $orderby ) {
 			$query->set( 'orderby', 'date' );
+		} elseif ( "TIMESTAMP( $wpdb->postmeta.meta_value ) ID" === $orderby ) {
+			$query->set( 'orderby', 'date ID' );
 		} elseif ( in_array( $orderby, array( 'title', 'menu_order' ), true ) ) {
 			$query->set( 'orderby', $orderby . ' date' );
 		} elseif ( 'venue' === $orderby ) {
@@ -414,6 +424,44 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		}
 
 		return $post_args;
+
+	}
+
+	/**
+	 * Override custom SQL query used by TEC for month view template.
+	 *
+	 * @param null|array $events_in_month An array of events in month (default null, run the SQL query like normal)
+	 * @param string     $start_date      The start date to filter the queried events by
+	 * @param string     $end_date        The end date to filter the queried events by
+	 *
+	 * @return null|array
+	 */
+	public function override_tec_events_in_month( $events_in_month, $start_date, $end_date ) {
+
+		$args = array(
+			'post_type'      => Tribe__Events__Main::POSTTYPE,
+			'fields'         => 'ids',
+			'posts_per_page' => 500,
+		);
+
+		$event_query = new WP_Query( $args );
+
+		$posts = $event_query->posts;
+
+		$events_in_month = array();
+
+		foreach ( $posts as $post_id ) {
+			$event_start_date = get_post_meta( $post_id, '_EventStartDate', true );
+			$event_end_date   = get_post_meta( $post_id, '_EventEndDate', true );
+
+			$events_in_month[] = (object) array(
+				'ID'             => $post_id,
+				'EventStartDate' => $event_start_date,
+				'EventEndDate'   => $event_end_date,
+			);
+		}
+
+		return $events_in_month;
 
 	}
 
