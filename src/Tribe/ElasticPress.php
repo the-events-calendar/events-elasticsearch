@@ -76,6 +76,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Override ElasticPress post_date used with _EventStartDate
 		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
 
+		// @todo Add EP mapping config overrides for TEC geo_point value of venue
+
 	}
 
 	/**
