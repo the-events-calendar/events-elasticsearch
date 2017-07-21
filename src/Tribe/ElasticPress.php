@@ -1,6 +1,8 @@
 <?php
 /**
  * Handle ElasticPress integration with hooks and indexing.
+ *
+ * @todo Tribe__Events__Pro__Recurrence__Event_Query::include_parent_event(): Needs 'where' integration with EP ES args
  */
 
 // Don't load directly
