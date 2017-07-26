@@ -248,7 +248,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			// The below hook above also handles cases like: '' !== $start_date && '' !== $end_date
 
 			// We handle date ranges in EP API args handler
-			add_action( 'ep_formatted_args', array( $this, 'add_ep_api_integration_where' ), 10, 2 );
+			add_filter( 'ep_formatted_args', array( $this, 'add_ep_api_integration_where' ), 10, 2 );
 		} elseif ( '' !== $end_date ) {
 			// Handle using a simple meta_query arg
 			$meta_query[] = array(
@@ -317,10 +317,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 *
 	 * @param array $formatted_args Elasticsearch formatted args
 	 * @param array $args           WP_Query args
+	 *
+	 * @return array
 	 */
 	public function add_ep_api_integration_where( $formatted_args, $args ) {
 
-		$dates = $this->get_tec_dates_from_query( $query );
+		$dates = $this->get_tec_dates_from_query( $args );
 
 		$start_date = $dates['start'];
 		$end_date   = $dates['end'];
@@ -328,39 +330,164 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		if ( '' !== $start_date && '' !== $end_date ) {
 			// Handle full date range
 
-			// @todo Setup EP date query handler to create args
+			/**
+			 * Converted from:
+			 *
+			 * $wpdb->prepare( "( %s <= meta._EventStartDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date )
+			 */
+			$date_query_args = array(
+				array(
+					'column'    => 'meta._EventStartDate.date',
+					'after'     => $start_date,
+					'before'    => $end_date,
+					'inclusive' => true,
+				),
+			);
 
-			// OLD SQL
-			$start_clause  = $wpdb->prepare( "( %s <= meta._EventStartDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date );
-			// OR THIS
-			$end_clause    = $wpdb->prepare( "( %s <= meta._EventEndDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date );
-			// OR THIS
-			$within_clause = $wpdb->prepare( "( meta._EventStartDate.date < %s AND %s <= meta._EventEndDate.date )", $start_date, $end_date );
+			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+			$date_filter = $date_query->get_es_filter();
+
+			if ( ! empty( $date_filter['and'] ) ) {
+				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+			}
+
+			/**
+			 * Converted from:
+			 *
+			 * $wpdb->prepare( "( %s <= meta._EventEndDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date )
+			 */
+			$date_query_args = array(
+				array(
+					'column'    => 'meta._EventEndDate.date',
+					'after'     => $start_date,
+					'inclusive' => true,
+				),
+				array(
+					'column'    => 'meta._EventStartDate.date',
+					'before'    => $end_date,
+					'inclusive' => true,
+				),
+			);
+
+			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+			$date_filter = $date_query->get_es_filter();
+
+			if ( ! empty( $date_filter['and'] ) ) {
+				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+			}
+
+			/**
+			 * Converted from:
+			 *
+			 * $wpdb->prepare( "( meta._EventStartDate.date < %s AND %s <= meta._EventEndDate.date )", $start_date, $end_date )
+			 */
+			$date_query_args = array(
+				array(
+					'column'    => 'meta._EventStartDate.date',
+					'before'     => $start_date,
+				),
+				array(
+					'column'    => 'meta._EventEndDate.date',
+					'after'     => $end_date,
+					'inclusive' => true,
+				),
+			);
+
+			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+			$date_filter = $date_query->get_es_filter();
+
+			if ( ! empty( $date_filter['and'] ) ) {
+				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+			}
 		} elseif ( '' !== $start_date ) {
 			// Handle partial date range
 
-			// @todo Setup EP date query handler to create args
+			/**
+			 * Converted from:
+			 *
+			 * $wpdb->prepare( "%s <= meta._EventStartDate.date", $start_date )
+			 */
+			$date_query_args = array(
+				array(
+					'column'    => 'meta._EventStartDate.date',
+					'after'     => $start_date,
+					'inclusive' => true,
+				),
+			);
 
-			// OLD SQL
-			$start_clause  = $wpdb->prepare( "%s <= meta._EventStartDate.date", $start_date );
-			// OR this
-			$within_clause = $wpdb->prepare( "( meta._EventStartDate.date <= %s AND %s <= meta._EventEndDate.date )", $start_date, $start_date );
+			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+			$date_filter = $date_query->get_es_filter();
+
+			if ( ! empty( $date_filter['and'] ) ) {
+				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+			}
+
+			/**
+			 * Converted from:
+			 *
+			 * $wpdb->prepare( "( meta._EventStartDate.date <= %s AND %s <= meta._EventEndDate.date )", $start_date, $start_date )
+			 */
+			$date_query_args = array(
+				array(
+					'column'    => 'meta._EventStartDate.date',
+					'before'    => $start_date,
+					'inclusive' => true,
+				),
+				array(
+					'column'    => 'meta._EventEndDate.date',
+					'after'     => $start_date,
+					'inclusive' => true,
+				),
+			);
+
+			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+			$date_filter = $date_query->get_es_filter();
+
+			if ( ! empty( $date_filter['and'] ) ) {
+				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+			}
 
 			if ( $query->is_singular() && $query->get( 'eventDate' ) ) {
 				// AND this
 				$tomorrow        = date( 'Y-m-d', strtotime( $query->get( 'eventDate' ) . ' +1 day' ) );
-				$tomorrow_clause = $wpdb->prepare( "meta._EventStartDate.date < %s", $tomorrow );
+
+				/**
+				 * Converted from:
+				 *
+				 * $tomorrow_clause = $wpdb->prepare( "meta._EventStartDate.date < %s", $tomorrow )
+				 */
+				$date_query_args = array(
+					array(
+						'column'    => 'meta._EventStartDate.date',
+						'before'    => $tomorrow,
+					),
+				);
+
+				$date_query = new EP_WP_Date_Query( $args['date_query'] );
+
+				$date_filter = $date_query->get_es_filter();
+
+				if ( ! empty( $date_filter['and'] ) ) {
+					$formatted_args['query']['bool']['must'][] = $date_filter['and'];
+				}
 			}
 		} elseif ( '' !== $end_date ) {
 			// See Tribe__Events__Elasticsearch__ElasticPress::add_ep_query_integration_where
 		}
+
+		return $formatted_args;
 
 	}
 
 	/**
 	 * Get the TEC start and end dates from the WP_Query object.
 	 *
-	 * @param WP_Query $query Query object
+	 * @param WP_Query|array $query Query object or array arguments
 	 *
 	 * @return array
 	 */
@@ -375,11 +502,20 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// but only if we aren't grabbing a specific post
 		if (
 			(
-				$query->tribe_is_event
-				|| $query->tribe_is_event_category
+				is_array( $query )
+				&& (
+					! empty( $query['start_date'] )
+					|| ! empty( $query['end_date'] )
+				)
 			)
-			&& empty( $query->query_vars['name'] )
-			&& empty( $query->query_vars['p'] )
+			|| (
+				(
+					$query->tribe_is_event
+					|| $query->tribe_is_event_category
+				)
+				&& empty( $query->query_vars['name'] )
+				&& empty( $query->query_vars['p'] )
+			)
 		) {
 			$start_date = $query->get( 'start_date' );
 			$end_date   = $query->get( 'end_date' );
