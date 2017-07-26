@@ -197,7 +197,7 @@ class Tribe__Events__Elasticsearch__Main {
 				'short_name'   => 'The Events Calendar',
 				'class'        => 'Tribe__Events__Main',
 				'thickbox_url' => 'plugin-install.php?tab=plugin-information&plugin=the-events-calendar&TB_iframe=true',
-				'min_version'  => self::REQUIRED_ET_VERSION,
+				'min_version'  => self::REQUIRED_TEC_VERSION,
 				'ver_compare'  => 'Tribe__Events__Main::VERSION',
 			),
 			array(
