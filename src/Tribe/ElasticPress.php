@@ -344,7 +344,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				),
 			);
 
-			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+			$date_query = new EP_WP_Date_Query( $date_query_args );
 
 			$date_filter = $date_query->get_es_filter();
 
@@ -370,7 +370,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				),
 			);
 
-			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+			$date_query = new EP_WP_Date_Query( $date_query_args );
 
 			$date_filter = $date_query->get_es_filter();
 
@@ -395,7 +395,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				),
 			);
 
-			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+			$date_query = new EP_WP_Date_Query( $date_query_args );
 
 			$date_filter = $date_query->get_es_filter();
 
@@ -418,7 +418,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				),
 			);
 
-			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+			$date_query = new EP_WP_Date_Query( $date_query_args );
 
 			$date_filter = $date_query->get_es_filter();
 
@@ -444,7 +444,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				),
 			);
 
-			$date_query = new EP_WP_Date_Query( $args['date_query'] );
+			$date_query = new EP_WP_Date_Query( $date_query_args );
 
 			$date_filter = $date_query->get_es_filter();
 
@@ -468,7 +468,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 					),
 				);
 
-				$date_query = new EP_WP_Date_Query( $args['date_query'] );
+				$date_query = new EP_WP_Date_Query( $date_query_args );
 
 				$date_filter = $date_query->get_es_filter();
 
