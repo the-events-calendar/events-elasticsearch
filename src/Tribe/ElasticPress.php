@@ -64,6 +64,13 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Whitelist meta keys
 		add_filter( 'ep_prepare_meta_whitelist_key', array( $this, 'whitelist_meta_keys' ), 10, 3 );
 
+		// Override ElasticPress post_date used with _EventStartDate
+		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
+
+		// Add ElasticPress support for orderby=>post__in
+		// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
+		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );
+
 		// Add ElasticPress integration for TEC queries
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'add_ep_query_integration' ), 9 );
 
@@ -72,9 +79,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		// Override custom SQL query used by TEC for month view template.
 		add_action( 'tribe_events_month_get_events_in_month', array( $this, 'override_tec_events_in_month' ), 10, 3 );
-
-		// Override ElasticPress post_date used with _EventStartDate
-		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
 
 		// @todo Add EP mapping config overrides for TEC geo_point value of venue
 
@@ -89,6 +93,20 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		// Skip our logic if it's already integrated
 		if ( true === $query->get( 'ep_integrate', false ) ) {
+			return;
+		}
+
+		if ( ! is_admin() ) {
+			// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
+			$orderby = $query->get( 'orderby' );
+
+			if ( 'post__in' === $orderby ) {
+				$query->set( 'orderby', 'relevance' );
+				$query->set( 'real_orderby', 'post__in' );
+			}
+
+			$query->set( 'ep_integrate', true );
+
 			return;
 		}
 
@@ -114,6 +132,14 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		foreach ( $tec_post_types as $tec_post_type ) {
 			if ( in_array( $tec_post_type, $queried_post_types, true ) ) {
 				$query->set( 'ep_integrate', true );
+
+				// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
+				$orderby = $query->get( 'orderby' );
+
+				if ( 'post__in' === $orderby ) {
+					$query->set( 'orderby', 'relevance' );
+					$query->set( 'real_orderby', 'post__in' );
+				}
 
 				break;
 			}
@@ -333,11 +359,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			/**
 			 * Converted from:
 			 *
-			 * $wpdb->prepare( "( %s <= meta._EventStartDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date )
+			 * $wpdb->prepare( "( %s <= meta._EventStartDate.datetime AND meta._EventStartDate.datetime <= %s )", $start_date, $end_date )
 			 */
 			$date_query_args = array(
 				array(
-					'column'    => 'meta._EventStartDate.date',
+					'column'    => 'meta._EventStartDate.datetime',
 					'after'     => $start_date,
 					'before'    => $end_date,
 					'inclusive' => true,
@@ -355,16 +381,16 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			/**
 			 * Converted from:
 			 *
-			 * $wpdb->prepare( "( %s <= meta._EventEndDate.date AND meta._EventStartDate.date <= %s )", $start_date, $end_date )
+			 * $wpdb->prepare( "( %s <= meta._EventEndDate.datetime AND meta._EventStartDate.datetime <= %s )", $start_date, $end_date )
 			 */
 			$date_query_args = array(
 				array(
-					'column'    => 'meta._EventEndDate.date',
+					'column'    => 'meta._EventEndDate.datetime',
 					'after'     => $start_date,
 					'inclusive' => true,
 				),
 				array(
-					'column'    => 'meta._EventStartDate.date',
+					'column'    => 'meta._EventStartDate.datetime',
 					'before'    => $end_date,
 					'inclusive' => true,
 				),
@@ -381,15 +407,15 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			/**
 			 * Converted from:
 			 *
-			 * $wpdb->prepare( "( meta._EventStartDate.date < %s AND %s <= meta._EventEndDate.date )", $start_date, $end_date )
+			 * $wpdb->prepare( "( meta._EventStartDate.datetime < %s AND %s <= meta._EventEndDate.datetime )", $start_date, $end_date )
 			 */
 			$date_query_args = array(
 				array(
-					'column'    => 'meta._EventStartDate.date',
+					'column'    => 'meta._EventStartDate.datetime',
 					'before'     => $start_date,
 				),
 				array(
-					'column'    => 'meta._EventEndDate.date',
+					'column'    => 'meta._EventEndDate.datetime',
 					'after'     => $end_date,
 					'inclusive' => true,
 				),
@@ -408,11 +434,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			/**
 			 * Converted from:
 			 *
-			 * $wpdb->prepare( "%s <= meta._EventStartDate.date", $start_date )
+			 * $wpdb->prepare( "%s <= meta._EventStartDate.datetime", $start_date )
 			 */
 			$date_query_args = array(
 				array(
-					'column'    => 'meta._EventStartDate.date',
+					'column'    => 'meta._EventStartDate.datetime',
 					'after'     => $start_date,
 					'inclusive' => true,
 				),
@@ -429,16 +455,16 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			/**
 			 * Converted from:
 			 *
-			 * $wpdb->prepare( "( meta._EventStartDate.date <= %s AND %s <= meta._EventEndDate.date )", $start_date, $start_date )
+			 * $wpdb->prepare( "( meta._EventStartDate.datetime <= %s AND %s <= meta._EventEndDate.datetime )", $start_date, $start_date )
 			 */
 			$date_query_args = array(
 				array(
-					'column'    => 'meta._EventStartDate.date',
+					'column'    => 'meta._EventStartDate.datetime',
 					'before'    => $start_date,
 					'inclusive' => true,
 				),
 				array(
-					'column'    => 'meta._EventEndDate.date',
+					'column'    => 'meta._EventEndDate.datetime',
 					'after'     => $start_date,
 					'inclusive' => true,
 				),
@@ -459,11 +485,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				/**
 				 * Converted from:
 				 *
-				 * $tomorrow_clause = $wpdb->prepare( "meta._EventStartDate.date < %s", $tomorrow )
+				 * $tomorrow_clause = $wpdb->prepare( "meta._EventStartDate.datetime < %s", $tomorrow )
 				 */
 				$date_query_args = array(
 					array(
-						'column'    => 'meta._EventStartDate.date',
+						'column'    => 'meta._EventStartDate.datetime',
 						'before'    => $tomorrow,
 					),
 				);
@@ -478,6 +504,10 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			}
 		} elseif ( '' !== $end_date ) {
 			// See Tribe__Events__Elasticsearch__ElasticPress::add_ep_query_integration_where
+		}
+
+		if ( isset( $formatted_args['query']['match_all'] ) ) {
+			unset( $formatted_args['query']['match_all'] );
 		}
 
 		return $formatted_args;
@@ -517,8 +547,22 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				&& empty( $query->query_vars['p'] )
 			)
 		) {
-			$start_date = $query->get( 'start_date' );
-			$end_date   = $query->get( 'end_date' );
+			$start_date = '';
+			$end_date   = '';
+
+			if ( is_array( $query ) ) {
+				if ( ! empty( $query['start_date'] ) ) {
+					$start_date = $query['start_date'];
+				}
+
+				if ( ! empty( $query['start_date'] ) ) {
+					$end_date = $query['end_date'];
+				}
+			} else {
+				$start_date = $query->get( 'start_date' );
+				$end_date   = $query->get( 'end_date' );
+			}
+
 			$use_utc    = Tribe__Events__Timezones::is_mode( 'site' );
 			$site_tz    = $use_utc ? Tribe__Events__Timezones::wp_timezone_string() : null;
 
@@ -602,6 +646,77 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		}
 
 		return $events_in_month;
+
+	}
+
+	/**
+	 * Add ElasticPress support for orderby=>post__in in WP_Query calls.
+	 *
+	 * @param array    $new_posts New posts array from EP
+	 * @param array    $ep_query  EP query arguments
+	 * @param WP_Query $query     Query object
+	 *
+	 * @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
+	 */
+	public function add_ep_support_orderby_post__in( $new_posts, $ep_query, $query ) {
+
+		$real_orderby = $query->get( 'real_orderby' );
+
+		// Support for orderby post__in
+		if ( 'post__in' === $real_orderby && did_action( 'ep_wp_query_non_cached_search' ) ) {
+			$reordered_posts = array();
+
+			$post__in     = $query->get( 'post__in' );
+			$order        = $query->get( 'order' );
+
+			$new_post_ids = wp_list_pluck( $new_posts, 'ID' );
+			$new_post_ids = array_map( 'absint', $new_post_ids );
+
+			foreach ( $post__in as $id ) {
+				$found_key = array_search( absint( $id ), $new_post_ids, true );
+
+				if ( false !== $found_key ) {
+					$reordered_posts[] = $new_posts[ $found_key ];
+				}
+			}
+
+			if ( ! empty( $reordered_posts ) ) {
+				// Support descending order
+				if ( 'desc' === strtolower( $order ) ) {
+					$reordered_posts = array_reverse( $reordered_posts );
+				}
+
+				$new_posts = $reordered_posts;
+			}
+
+			// Update posts in query
+			$this->posts_by_query[ spl_object_hash( $query ) ] = $new_posts;
+
+			// Query and filter in EP_Posts to WP_Query as used above
+			add_filter( 'the_posts', array( $this, 'filter_the_posts' ), 10, 2 );
+		}
+
+	}
+
+	/**
+	 * Filter the posts array to contain ES query results in EP_Post form. Pull previously queried posts.
+	 *
+	 * @param array    $posts Posts array
+	 * @param WP_Query $query Query object
+	 *
+	 * @return array
+	 *
+	 * @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
+	 */
+	public function filter_the_posts( $posts, $query ) {
+
+		if ( ! ep_elasticpress_enabled( $query ) || apply_filters( 'ep_skip_query_integration', false, $query ) || ! isset( $this->posts_by_query[ spl_object_hash( $query ) ] ) ) {
+			return $posts;
+		}
+
+		$new_posts = $this->posts_by_query[ spl_object_hash( $query ) ];
+
+		return $new_posts;
 
 	}
 
