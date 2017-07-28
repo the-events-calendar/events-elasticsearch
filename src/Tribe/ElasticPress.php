@@ -600,6 +600,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$start_date = get_post_meta( $post_id, '_EventStartDate', true );
 
 			if ( ! empty( $start_date ) ) {
+				$use_utc    = Tribe__Events__Timezones::is_mode( 'site' );
 				$site_tz = $use_utc ? Tribe__Events__Timezones::wp_timezone_string() : null;
 
 				$post_args['post_date']     = $start_date;
