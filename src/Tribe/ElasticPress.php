@@ -184,9 +184,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		// Only include TEC taxonomies if this is a TEC post type (or null $post)
 		if ( null === $post || Tribe__Events__Main::POSTTYPE === $post->post_type ) {
-			// Only include if it's not arleady included
+			// Only include if it's not already included
 			if ( ! in_array( Tribe__Events__Main::TAXONOMY, $taxonomies, true ) ) {
-				$taxonomies[] = Tribe__Events__Main::TAXONOMY;
+				$taxonomies[] = get_taxonomy( Tribe__Events__Main::TAXONOMY );
 			}
 		}
 
