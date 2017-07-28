@@ -365,6 +365,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$start_date = $dates['start'];
 		$end_date   = $dates['end'];
 
+		$tcp_ep_filter = array();
+
 		if ( '' !== $start_date && '' !== $end_date ) {
 			// Handle full date range
 
