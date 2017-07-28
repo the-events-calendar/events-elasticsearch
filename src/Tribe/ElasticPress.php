@@ -624,8 +624,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		$args = array(
 			'post_type'      => Tribe__Events__Main::POSTTYPE,
-			'fields'         => 'ids',
-			'posts_per_page' => 500,
+			// 'fields'         => 'ids', // @todo Wait for https://github.com/10up/ElasticPress/pull/760 to be merged
+			'posts_per_page' => - 1,
+			'start_date'     => $start_date,
+			'end_date'       => $end_date,
+			'ep_integrate'   => true,
+			'suppress_filters' => false,
 		);
 
 		$event_query = new WP_Query( $args );
@@ -634,12 +638,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		$events_in_month = array();
 
-		foreach ( $posts as $post_id ) {
-			$event_start_date = get_post_meta( $post_id, '_EventStartDate', true );
-			$event_end_date   = get_post_meta( $post_id, '_EventEndDate', true );
+		foreach ( $posts as $post ) {
+			$event_start_date = get_post_meta( $post->ID, '_EventStartDate', true );
+			$event_end_date   = get_post_meta( $post->ID, '_EventEndDate', true );
 
 			$events_in_month[] = (object) array(
-				'ID'             => $post_id,
+				'ID'             => $post->ID,
 				'EventStartDate' => $event_start_date,
 				'EventEndDate'   => $event_end_date,
 			);
