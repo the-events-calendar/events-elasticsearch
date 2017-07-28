@@ -663,8 +663,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$real_orderby = $query->get( 'real_orderby' );
 
 		// Support for orderby post__in
-		if ( 'post__in' === $real_orderby && did_action( 'ep_wp_query_non_cached_search' ) ) {
+		if ( 'post__in' === $real_orderby && $new_posts && did_action( 'ep_wp_query_non_cached_search' ) ) {
 			$reordered_posts = array();
+
+			if ( is_object( $new_posts ) ) {
+				$new_posts = array( $new_posts );
+			}
 
 			$post__in     = $query->get( 'post__in' );
 			$order        = $query->get( 'order' );
@@ -693,7 +697,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$this->posts_by_query[ spl_object_hash( $query ) ] = $new_posts;
 
 			// Query and filter in EP_Posts to WP_Query as used above
-			add_filter( 'the_posts', array( $this, 'filter_the_posts' ), 10, 2 );
+			add_filter( 'the_posts', array( $this, 'filter_the_posts' ), 11, 2 );
 		}
 
 	}
