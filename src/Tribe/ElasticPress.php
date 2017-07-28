@@ -268,7 +268,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$meta_query = array();
 		}
 
-		if ( '' !== $start_date || ! empty( $meta_query['relation'] ) && 'OR' === strtoupper( $meta_query['relation'] ) ) {
+		if ( '' !== $start_date || ( ! empty( $meta_query['relation'] ) && 'OR' === strtoupper( $meta_query['relation'] ) ) ) {
 			// EP doesn't do date ranges with date_query well for our purposes (nested)
 			// We can't do nested 'relation' since this filtering needs to be 'AND' so it adds to main query
 			// The below hook above also handles cases like: '' !== $start_date && '' !== $end_date
@@ -281,8 +281,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				'key'     => '_EventStartDate',
 				'value'   => $end_date,
 				'compare' => '<=', // wp_postmeta.meta_value <= $value
-				'type'    => 'DATE',
+				'type'    => 'DATETIME',
 			);
+		}
+
+		if ( ! empty( $meta_query ) ) {
+			$query->get( 'meta_query', $meta_query );
 		}
 
 	}
@@ -375,7 +379,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$date_filter = $date_query->get_es_filter();
 
 			if ( ! empty( $date_filter['and'] ) ) {
-				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+				$tcp_ep_filter['bool']['should'][] = $date_filter['and']['bool']['must'][0];
 			}
 
 			/**
@@ -401,7 +405,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$date_filter = $date_query->get_es_filter();
 
 			if ( ! empty( $date_filter['and'] ) ) {
-				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+				$tcp_ep_filter['bool']['should'][] = $date_filter['and'];
 			}
 
 			/**
@@ -426,7 +430,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$date_filter = $date_query->get_es_filter();
 
 			if ( ! empty( $date_filter['and'] ) ) {
-				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+				$tcp_ep_filter['bool']['should'][] = $date_filter['and'];
 			}
 		} elseif ( '' !== $start_date ) {
 			// Handle partial date range
@@ -449,7 +453,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$date_filter = $date_query->get_es_filter();
 
 			if ( ! empty( $date_filter['and'] ) ) {
-				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+				$tcp_ep_filter['bool']['should'][] = $date_filter['and']['bool']['must'][0];
 			}
 
 			/**
@@ -475,12 +479,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$date_filter = $date_query->get_es_filter();
 
 			if ( ! empty( $date_filter['and'] ) ) {
-				$formatted_args['query']['bool']['should'][] = $date_filter['and'];
+				$tcp_ep_filter['bool']['should'][] = $date_filter['and'];
 			}
 
-			if ( $query->is_singular() && $query->get( 'eventDate' ) ) {
+			if ( ( ! empty( $args['p'] ) || ! empty( $args['name'] ) ) && ! empty( $args['eventDate'] ) ) {
 				// AND this
-				$tomorrow        = date( 'Y-m-d', strtotime( $query->get( 'eventDate' ) . ' +1 day' ) );
+				$tomorrow = date( 'Y-m-d', strtotime( $query->get( 'eventDate' ) . ' +1 day' ) );
 
 				/**
 				 * Converted from:
@@ -499,15 +503,22 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				$date_filter = $date_query->get_es_filter();
 
 				if ( ! empty( $date_filter['and'] ) ) {
-					$formatted_args['query']['bool']['must'][] = $date_filter['and'];
+					$tcp_ep_filter['bool']['must'][] = $tcp_ep_filter;
+					$tcp_ep_filter['bool']['must'][] = $date_filter['and']['bool']['must'][0];
 				}
 			}
 		} elseif ( '' !== $end_date ) {
 			// See Tribe__Events__Elasticsearch__ElasticPress::add_ep_query_integration_where
 		}
 
-		if ( isset( $formatted_args['query']['match_all'] ) ) {
-			unset( $formatted_args['query']['match_all'] );
+		if ( isset( $formatted_args['query']['match_all'] ) && ! empty( $tcp_ep_filter ) ) {
+			if ( 1 === count( $tcp_ep_filter['bool'] ) && ! empty( $tcp_ep_filter['bool']['must'] ) ) {
+				foreach ( $tcp_ep_filter['bool']['must'] as $must ) {
+					$formatted_args['post_filter']['bool']['must'][] = $must;
+				}
+			} else {
+				$formatted_args['post_filter']['bool']['must'][] = $tcp_ep_filter;
+			}
 		}
 
 		return $formatted_args;
