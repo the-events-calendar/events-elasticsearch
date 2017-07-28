@@ -563,6 +563,10 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				$end_date   = $query->get( 'end_date' );
 			}
 
+			if ( '' !== $end_date && 10 === strlen( $end_date ) ) {
+				$end_date .= ' 23:59:59';
+			}
+
 			$use_utc    = Tribe__Events__Timezones::is_mode( 'site' );
 			$site_tz    = $use_utc ? Tribe__Events__Timezones::wp_timezone_string() : null;
 
