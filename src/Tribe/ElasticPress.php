@@ -555,7 +555,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 					$start_date = $query['start_date'];
 				}
 
-				if ( ! empty( $query['start_date'] ) ) {
+				if ( ! empty( $query['end_date'] ) ) {
 					$end_date = $query['end_date'];
 				}
 			} else {
