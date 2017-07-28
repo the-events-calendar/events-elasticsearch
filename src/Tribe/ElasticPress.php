@@ -78,7 +78,15 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'remove_tec_wpdb_overrides' ) );
 
 		// Override custom SQL query used by TEC for month view template.
-		add_action( 'tribe_events_month_get_events_in_month', array( $this, 'override_tec_events_in_month' ), 10, 3 );
+		add_filter( 'tribe_events_month_get_events_in_month', array( $this, 'override_tec_events_in_month' ), 10, 3 );
+
+		// Remove query that runs later, use posts_pre_query to avoid extra DB queries (WP 4.6+)
+		if ( version_compare( '4.6', $GLOBALS['wp_version'], '<=' ) ) {
+			$ep_wp_query = EP_WP_Query_Integration::factory();
+
+			remove_filter( 'the_posts', array( $ep_wp_query, 'filter_the_posts' ) );
+			add_filter( 'posts_pre_query', array( $ep_wp_query, 'filter_the_posts' ), 10, 2 );
+		}
 
 		// @todo Add EP mapping config overrides for TEC geo_point value of venue
 
