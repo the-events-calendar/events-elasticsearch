@@ -62,11 +62,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		add_filter( 'ep_prepare_meta_whitelist_key', array( $this, 'whitelist_meta_keys' ), 10, 3 );
 
 		// Override ElasticPress post_date used with _EventStartDate
-		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 )
+		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
 
 		// Add ElasticPress support for orderby=>post__in
 		// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
-		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );;
+		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );
 
 		// Add geopoint mapping for posts
 		add_filter( 'ep_config_mapping', array( $this, 'add_ep_geopoint_mapping' ) );
