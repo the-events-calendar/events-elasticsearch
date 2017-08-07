@@ -798,6 +798,10 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function override_tec_geofence( $venues, $latlng, $geofence_radio ) {
 
+		if ( ! empty( $venues ) ) {
+			return $venues;
+		}
+
 		$args = array(
 			'post_type'      => Tribe__Events__Main::VENUE_POST_TYPE,
 			'fields'         => 'ids',
