@@ -52,9 +52,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function add_hooks() {
 
-		// Handle auto integration of ElasticPress for TEC post types
-		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
-
 		// Whitelist post types
 		add_filter( 'ep_indexable_post_types', array( $this, 'whitelist_post_types' ), 10, 1 );
 
@@ -63,6 +60,15 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		// Whitelist meta keys
 		add_filter( 'ep_prepare_meta_whitelist_key', array( $this, 'whitelist_meta_keys' ), 10, 3 );
+
+		// Override ElasticPress post_date used with _EventStartDate
+		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
+
+		// Add geopoint mapping for posts
+		add_filter( 'ep_config_mapping', array( $this, 'add_ep_geopoint_mapping' ) );
+
+		// Handle auto integration of ElasticPress for TEC post types
+		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
 
 		// Add ElasticPress integration for TEC queries
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'add_ep_query_integration' ), 9 );
@@ -73,10 +79,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Override custom SQL query used by TEC for month view template.
 		add_action( 'tribe_events_month_get_events_in_month', array( $this, 'override_tec_events_in_month' ), 10, 3 );
 
-		// Override ElasticPress post_date used with _EventStartDate
-		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
+		// Override TEC geofence DB query
+		add_filter( 'tribe_geoloc_pre_get_venues_in_geofence', array( $this, 'override_tec_geofence' ), 10, 3 );
 
-		// @todo Add EP mapping config overrides for TEC geo_point value of venue
+		// Handle TEC geofence query in EP API args handler
+		add_filter( 'ep_formatted_args', array( $this, 'add_ep_api_integration_geofence' ), 10, 2 );
 
 	}
 
@@ -568,6 +575,23 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	}
 
 	/**
+	 * Add geopoint mapping for posts
+	 *
+	 * @param array $mapping Elasticsearch mapping configuration from ElasticPress
+	 *
+	 * @return array
+	 */
+	public function add_ep_geopoint_mapping( $mapping ) {
+
+		$mapping['mappings']['post']['properties']['tribe_geopoint'] = array(
+			'type' => 'geo_point',
+		);
+
+		return $mapping;
+
+	}
+
+	/**
 	 * Override custom SQL query used by TEC for month view template.
 	 *
 	 * @param null|array $events_in_month An array of events in month (default null, run the SQL query like normal)
@@ -602,6 +626,81 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		}
 
 		return $events_in_month;
+
+	}
+
+	/**
+	 * Override TEC geofence DB query
+	 *
+	 * @param null|int[] $venues Venue IDs, default null will query database directly.
+	 * @param array      $latlng {
+	 * 		Latitude / longitude values for geofencing
+	 *
+	 *		@type float $lat    Central latitude point
+	 *		@type float $lng    Central longitude point
+	 *		@type float $minLat Minimum latitude constraint
+	 *		@type float $maxLat Maximum latitude constraint
+	 *		@type float $minLng Minimum longitude constraint
+	 *		@type float $maxLng Maximum longitude constraint
+	 * }
+	 * @param float      $geofence_radio Geofence size in kilometers
+	 *
+	 * @return null|int[]
+	 */
+	public function override_tec_geofence( $venues, $latlng, $geofence_radio ) {
+
+		$args = array(
+			'post_type'      => Tribe__Events__Main::VENUE_POST_TYPE,
+			'fields'         => 'ids',
+			'posts_per_page' => 500,
+			'tribe_geofence' => array(
+				'latlng'         => $latlng,
+				'geofence_radio' => $geofence_radio,
+			),
+		);
+
+		$venue_query = new WP_Query( $args );
+
+		$posts = $venue_query->posts;
+
+		if ( $posts ) {
+			$venues = $posts;
+
+			$venues = array_map( 'absint', $venues );
+		}
+
+		return $venues;
+
+	}
+
+	/**
+	 * Add Elasticsearch geofence integration for TEC queries.
+	 *
+	 * @param array $formatted_args Elasticsearch formatted args
+	 * @param array $args           WP_Query args
+	 *
+	 * @return array
+	 */
+	public function add_ep_api_integration_geofence( $formatted_args, $args ) {
+
+		if ( empty( $args['tribe_geofence'] )
+				|| empty( $args['tribe_geofence']['latlng'] )
+				|| empty( $args['tribe_geofence']['geofence_radio'] ) ) {
+			return $formatted_args;
+		}
+
+		$latlng   = $args['latlng'];
+		$geofence = $args['geofence_radio'];
+
+		$formatted_args['query']['bool']['must'][] = array(
+			'distance' => sprintf( '%dkm', (int) $geofence ),
+			'location' => array(
+				'lat' => (float) $latlng['lat'],
+				'lon' => (float) $latlng['lng'],
+			),
+		);
+
+		return $formatted_args;
 
 	}
 
