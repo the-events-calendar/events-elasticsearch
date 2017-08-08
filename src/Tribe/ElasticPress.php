@@ -30,9 +30,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function hook() {
 
-		// Handle auto integration of ElasticPress for TEC post types
-		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
-
 		// Whitelist post types
 		add_filter( 'ep_indexable_post_types', array( $this, 'whitelist_post_types' ), 10, 1 );
 
@@ -48,6 +45,15 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Add ElasticPress support for orderby=>post__in
 		// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
 		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );
+
+		// Add geopoint mapping for posts
+		add_filter( 'ep_config_mapping', array( $this, 'add_ep_geopoint_mapping' ) );
+
+		// Handle TEC geofence query in EP API args handler
+		add_filter( 'ep_formatted_args', array( $this, 'add_ep_api_integration_geofence' ), 10, 2 );
+
+		// Handle auto integration of ElasticPress for TEC post types
+		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
 
 		// Add ElasticPress integration for TEC queries
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'add_ep_query_integration' ), 9 );
@@ -66,7 +72,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			add_filter( 'posts_pre_query', array( $ep_wp_query, 'filter_the_posts' ), 10, 2 );
 		}
 
-		// @todo Add EP mapping config overrides for TEC geo_point value of venue
+		// Override TEC geofence DB query
+		add_filter( 'tribe_geoloc_pre_get_venues_in_geofence', array( $this, 'override_tec_geofence' ), 10, 3 );
 
 	}
 
@@ -603,7 +610,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$start_date = get_post_meta( $post_id, '_EventStartDate', true );
 
 			if ( ! empty( $start_date ) ) {
-				$use_utc    = Tribe__Events__Timezones::is_mode( 'site' );
+				$use_utc = Tribe__Events__Timezones::is_mode( 'site' );
 				$site_tz = $use_utc ? Tribe__Events__Timezones::wp_timezone_string() : null;
 
 				$post_args['post_date']     = $start_date;
@@ -612,6 +619,23 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		}
 
 		return $post_args;
+
+	}
+
+	/**
+	 * Add geopoint mapping for posts
+	 *
+	 * @param array $mapping Elasticsearch mapping configuration from ElasticPress
+	 *
+	 * @return array
+	 */
+	public function add_ep_geopoint_mapping( $mapping ) {
+
+		$mapping['mappings']['post']['properties']['tribe_geopoint'] = array(
+			'type' => 'geo_point',
+		);
+
+		return $mapping;
 
 	}
 
@@ -627,12 +651,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	public function override_tec_events_in_month( $events_in_month, $start_date, $end_date ) {
 
 		$args = array(
-			'post_type'      => Tribe__Events__Main::POSTTYPE,
+			'post_type'        => Tribe__Events__Main::POSTTYPE,
 			// 'fields'         => 'ids', // @todo Wait for https://github.com/10up/ElasticPress/pull/760 to be merged
-			'posts_per_page' => - 1,
-			'start_date'     => $start_date,
-			'end_date'       => $end_date,
-			'ep_integrate'   => true,
+			'posts_per_page'   => 500,
+			'start_date'       => $start_date,
+			'end_date'         => $end_date,
+			'ep_integrate'     => true,
 			'suppress_filters' => false,
 		);
 
@@ -729,6 +753,85 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$new_posts = $this->posts_by_query[ spl_object_hash( $query ) ];
 
 		return $new_posts;
+
+	}
+
+	/**
+	 * Override TEC geofence DB query
+	 *
+	 * @param null|int[] $venues Venue IDs, default null will query database directly.
+	 * @param array      $latlng {
+	 * 		Latitude / longitude values for geofencing
+	 *
+	 *		@type float $lat    Central latitude point
+	 *		@type float $lng    Central longitude point
+	 *		@type float $minLat Minimum latitude constraint
+	 *		@type float $maxLat Maximum latitude constraint
+	 *		@type float $minLng Minimum longitude constraint
+	 *		@type float $maxLng Maximum longitude constraint
+	 * }
+	 * @param float      $geofence_radio Geofence size in kilometers
+	 *
+	 * @return null|int[]
+	 */
+	public function override_tec_geofence( $venues, $latlng, $geofence_radio ) {
+
+		if ( ! empty( $venues ) ) {
+			return $venues;
+		}
+
+		$args = array(
+			'post_type'      => Tribe__Events__Main::VENUE_POST_TYPE,
+			'fields'         => 'ids',
+			'posts_per_page' => 500,
+			'tribe_geofence' => array(
+				'latlng'         => $latlng,
+				'geofence_radio' => $geofence_radio,
+			),
+		);
+
+		$venue_query = new WP_Query( $args );
+
+		$posts = $venue_query->posts;
+
+		if ( $posts ) {
+			$venues = $posts;
+
+			$venues = array_map( 'absint', $venues );
+		}
+
+		return $venues;
+
+	}
+
+	/**
+	 * Add Elasticsearch geofence integration for TEC queries.
+	 *
+	 * @param array $formatted_args Elasticsearch formatted args
+	 * @param array $args           WP_Query args
+	 *
+	 * @return array
+	 */
+	public function add_ep_api_integration_geofence( $formatted_args, $args ) {
+
+		if ( empty( $args['tribe_geofence'] )
+				|| empty( $args['tribe_geofence']['latlng'] )
+				|| empty( $args['tribe_geofence']['geofence_radio'] ) ) {
+			return $formatted_args;
+		}
+
+		$latlng   = $args['latlng'];
+		$geofence = $args['geofence_radio'];
+
+		$formatted_args['query']['bool']['must'][] = array(
+			'distance' => sprintf( '%dkm', (int) $geofence ),
+			'location' => array(
+				'lat' => (float) $latlng['lat'],
+				'lon' => (float) $latlng['lng'],
+			),
+		);
+
+		return $formatted_args;
 
 	}
 
