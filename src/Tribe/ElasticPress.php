@@ -17,40 +17,18 @@ if ( class_exists( 'Tribe__Events__Elasticsearch__ElasticPress' ) ) {
 class Tribe__Events__Elasticsearch__ElasticPress {
 
 	/**
-	 * Singleton to instantiate the class.
-	 *
-	 * @return Tribe__Events__Elasticsearch__ElasticPress
-	 */
-	public static function instance() {
-
-		/**
-		 * @var $instance null|Tribe__Events__Elasticsearch__ElasticPress
-		 */
-		static $instance;
-
-		if ( ! $instance ) {
-			$instance = new self;
-		}
-
-		return $instance;
-
-	}
-
-	/**
 	 * Constructor method.
 	 */
 	public function __construct() {
 
-		if ( class_exists( 'Tribe__Events__Main' ) ) {
-			$this->add_hooks();
-		}
+		$this->hook();
 
 	}
 
 	/**
 	 * Add hooks for ElasticPress integration.
 	 */
-	public function add_hooks() {
+	public function hook() {
 
 		// Whitelist post types
 		add_filter( 'ep_indexable_post_types', array( $this, 'whitelist_post_types' ), 10, 1 );
@@ -171,9 +149,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function whitelist_post_types( $post_types = array() ) {
 
-		$post_types[ Tribe__Events__Main::POSTTYPE ]            = Tribe__Events__Main::POSTTYPE;
-		$post_types[ Tribe__Events__Main::VENUE_POST_TYPE ]     = Tribe__Events__Main::VENUE_POST_TYPE;
-		$post_types[ Tribe__Events__Main::ORGANIZER_POST_TYPE ] = Tribe__Events__Main::ORGANIZER_POST_TYPE;
+		$post_types[ Tribe__Events__Main::POSTTYPE ]      = Tribe__Events__Main::POSTTYPE;
+		$post_types[ Tribe__Events__Venue::POSTTYPE ]     = Tribe__Events__Venue::POSTTYPE;
+		$post_types[ Tribe__Events__Organizer::POSTTYPE ] = Tribe__Events__Organizer::POSTTYPE;
 
 		return $post_types;
 
