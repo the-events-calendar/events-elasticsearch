@@ -1,0 +1,17 @@
+{
+  "name": "Tribe SaaS",
+  "type": "project",
+  "description": "Tribe SaaS plugin",
+  "license": "Private",
+  "config": {
+    "vendor-dir": "vendor",
+    "preferred-install": "dist"
+  },
+  "require": {
+    "elasticsearch/elasticsearch": "~5.0"
+  },
+  "require-dev": {
+    "codeception/codeception": "~2.2.12",
+    "lucatume/wp-browser": "~1.20.1"
+  }
+}
