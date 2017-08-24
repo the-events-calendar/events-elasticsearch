@@ -565,7 +565,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				)
 			)
 			|| (
-				(
+				is_object( $query )
+				&& (
 					$query->tribe_is_event
 					|| $query->tribe_is_event_category
 				)
