@@ -809,6 +809,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				'latlng'         => $latlng,
 				'geofence_radio' => $geofence_radio,
 			),
+			'ep_integrate'   => true,
 		);
 
 		$venue_query = new WP_Query( $args );
