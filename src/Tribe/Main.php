@@ -143,7 +143,7 @@ class Tribe__Events__Elasticsearch__Main {
 		$this->pue = new Tribe__Events__Elasticsearch__PUE( "{$this->plugin_path}/events-elasticsearch.php" );
 
 		// Setup the EP integration
-		tribe_singleton( 'tec.elasticsearch.elasticpress', 'Tribe__Events__Elasticsearch__ElasticPress' );
+		tribe_singleton( 'tec.elasticsearch.elasticpress', new Tribe__Events__Elasticsearch__ElasticPress );
 
 	}
 
