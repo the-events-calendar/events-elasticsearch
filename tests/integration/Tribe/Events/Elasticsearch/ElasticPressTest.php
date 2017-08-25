@@ -35,7 +35,7 @@ class ElasticPressTest extends \Tribe\Events\Elasticsearch\Tests\Integration\Int
 
 		$this->assertTrue( $query->have_posts() );
 		$this->assertEquals( 1, $query->post_count );
-		$this->assertEquals( 2512, $query->found_posts );
+		$this->assertEquals( 2511, $query->found_posts );
 
 	}
 
