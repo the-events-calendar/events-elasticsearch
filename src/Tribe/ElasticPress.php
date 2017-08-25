@@ -55,6 +55,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Handle auto integration of ElasticPress for TEC post types
 		add_action( 'pre_get_posts', array( $this, 'auto_integrate' ) );
 
+		// Bypass auto integration of ElasticPress when indexing
+		add_filter( 'ep_index_posts_args', array( $this, 'bypass_auto_integrate_index' ) );
+
 		// Add ElasticPress integration for TEC queries
 		add_action( 'tribe_events_pre_get_posts', array( $this, 'add_ep_query_integration' ), 9 );
 
@@ -85,7 +88,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	public function auto_integrate( $query ) {
 
 		// Skip our logic if it's already integrated
-		if ( true === $query->get( 'ep_integrate', false ) ) {
+		$ep_integrate = $query->get( 'ep_integrate', null );
+
+		if ( null !== $ep_integrate ) {
 			return;
 		}
 
@@ -137,6 +142,21 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				break;
 			}
 		}
+
+	}
+
+	/**
+	 * Bypass auto integration of ElasticPress when indexing
+	 *
+	 * @param array $args Query args
+	 *
+	 * @return array
+	 */
+	public function bypass_auto_integrate_index( $args ) {
+
+		$args['ep_integrate'] = false;
+
+		return $args;
 
 	}
 
@@ -545,7 +565,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				)
 			)
 			|| (
-				(
+				is_object( $query )
+				&& (
 					$query->tribe_is_event
 					|| $query->tribe_is_event_category
 				)
@@ -788,6 +809,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 				'latlng'         => $latlng,
 				'geofence_radio' => $geofence_radio,
 			),
+			'ep_integrate'   => true,
 		);
 
 		$venue_query = new WP_Query( $args );
@@ -820,8 +842,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			return $formatted_args;
 		}
 
-		$latlng   = $args['latlng'];
-		$geofence = $args['geofence_radio'];
+		$latlng   = $args['tribe_geofence']['latlng'];
+		$geofence = $args['tribe_geofence']['geofence_radio'];
 
 		$formatted_args['query']['bool']['must'][] = array(
 			'distance' => sprintf( '%dkm', (int) $geofence ),
