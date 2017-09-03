@@ -101,11 +101,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			if ( 'post__in' === $orderby ) {
 				$query->set( 'orderby', 'relevance' );
 				$query->set( 'real_orderby', 'post__in' );
+
+				$query->set( 'ep_integrate', true );
+
+				return;
 			}
-
-			$query->set( 'ep_integrate', true );
-
-			return;
 		}
 
 		// Check if auto integration is enabled
