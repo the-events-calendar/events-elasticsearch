@@ -17,6 +17,13 @@ if ( class_exists( 'Tribe__Events__Elasticsearch__ElasticPress' ) ) {
 class Tribe__Events__Elasticsearch__ElasticPress {
 
 	/**
+	 * Posts by query local cache.
+	 *
+	 * @var array
+	 */
+	private $posts_by_query = array();
+
+	/**
 	 * Constructor method.
 	 */
 	public function __construct() {
@@ -72,7 +79,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$ep_wp_query = EP_WP_Query_Integration::factory();
 
 			remove_filter( 'the_posts', array( $ep_wp_query, 'filter_the_posts' ) );
-			add_filter( 'posts_pre_query', array( $ep_wp_query, 'filter_the_posts' ), 10, 2 );
+			add_filter( 'posts_pre_query', array( $this, 'filter_the_posts' ), 10, 2 );
 		}
 
 		// Override TEC geofence DB query
@@ -767,11 +774,23 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 */
 	public function filter_the_posts( $posts, $query ) {
 
-		if ( ! ep_elasticpress_enabled( $query ) || apply_filters( 'ep_skip_query_integration', false, $query ) || ! isset( $this->posts_by_query[ spl_object_hash( $query ) ] ) ) {
+		$doing_pre_query = doing_filter( 'posts_pre_query' );
+
+		if ( ! ep_elasticpress_enabled( $query ) || apply_filters( 'ep_skip_query_integration', false, $query ) ) {
 			return $posts;
 		}
 
-		$new_posts = $this->posts_by_query[ spl_object_hash( $query ) ];
+		if ( isset( $this->posts_by_query[ spl_object_hash( $query ) ] ) ) {
+			$new_posts = $this->posts_by_query[ spl_object_hash( $query ) ];
+		} else {
+			$ep_wp_query = EP_WP_Query_Integration::factory();
+
+			$new_posts = $ep_wp_query->filter_the_posts( $posts, $query );
+		}
+
+		if ( $doing_pre_query && 'ids' === $query->get( 'fields' ) ) {
+			$new_posts = wp_list_pluck( $new_posts, 'ID' );
+		}
 
 		return $new_posts;
 
