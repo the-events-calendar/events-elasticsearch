@@ -101,20 +101,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			return;
 		}
 
-		if ( ! is_admin() ) {
-			// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
-			$orderby = $query->get( 'orderby' );
-
-			if ( 'post__in' === $orderby ) {
-				$query->set( 'orderby', 'relevance' );
-				$query->set( 'real_orderby', 'post__in' );
-
-				$query->set( 'ep_integrate', true );
-
-				return;
-			}
-		}
-
 		// Check if auto integration is enabled
 		$integration       = Tribe__Events__Elasticsearch__Main::get_option( 'enable_ep_integrate', true );
 		$admin_integration = Tribe__Events__Elasticsearch__Main::get_option( 'enable_ep_integrate_admin', false );
