@@ -101,17 +101,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			return;
 		}
 
-		if ( ! is_admin() ) {
-			// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
-			$orderby = $query->get( 'orderby' );
-
-			if ( 'post__in' === $orderby ) {
-				$query->set( 'orderby', 'relevance' );
-				$query->set( 'real_orderby', 'post__in' );
-			}
-
-			$query->set( 'ep_integrate', true );
-
+		// Skip using EP if singular
+		if ( $query->is_singular() ) {
 			return;
 		}
 
