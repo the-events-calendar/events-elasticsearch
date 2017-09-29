@@ -255,7 +255,7 @@ class Tribe__Events__Elasticsearch__Main {
 			$links[] = sprintf( '<a href="%1$s" class="thickbox" title="%2$s">%3$s</a>', esc_attr( $plugin['thickbox_url'] ), esc_attr( $plugin['short_name'] ), esc_html( $plugin['short_name'] ) );
 		}
 
-		$message = sprintf( esc_html__( 'To begin using The Events Calendar: Elasticsearch Integration, please install and activate the latest versions of %1$s, %2$s, %3$s, %4$s, and %5$s.', 'tribe-events-community-events' ), $links[0], $links[1], $links[2], $links[3], $links[4] );
+		$message = sprintf( esc_html__( 'To begin using The Events Calendar: Elasticsearch Integration, please install and activate the latest versions of %1$s and %2$s.', 'tribe-events-elasticsearch' ), $links[0], $links[1] );
 
 		printf( '<div class="error"><p>%s</p></div>', $message );
 
