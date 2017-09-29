@@ -101,6 +101,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			return;
 		}
 
+		// Skip using EP if singular
+		if ( $query->is_singular() ) {
+			return;
+		}
+
 		// Check if auto integration is enabled
 		$integration       = Tribe__Events__Elasticsearch__Main::get_option( 'enable_ep_integrate', true );
 		$admin_integration = Tribe__Events__Elasticsearch__Main::get_option( 'enable_ep_integrate_admin', false );
