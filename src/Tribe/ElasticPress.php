@@ -50,7 +50,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
 
 		// Add ElasticPress support for orderby=>post__in
-		// @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
 		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );
 
 		// Add geopoint mapping for posts
@@ -671,8 +670,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		$args = array(
 			'post_type'        => Tribe__Events__Main::POSTTYPE,
-			// 'fields'         => 'ids', // @todo Wait for https://github.com/10up/ElasticPress/pull/760 to be merged
-			'posts_per_page'   => 500,
+			'fields'           => 'ids',
+			'posts_per_page'   => 50000,
 			'start_date'       => $start_date,
 			'end_date'         => $end_date,
 			'ep_integrate'     => true,
@@ -685,12 +684,12 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 		$events_in_month = array();
 
-		foreach ( $posts as $post ) {
-			$event_start_date = get_post_meta( $post->ID, '_EventStartDate', true );
-			$event_end_date   = get_post_meta( $post->ID, '_EventEndDate', true );
+		foreach ( $posts as $post_id ) {
+			$event_start_date = get_post_meta( $post_id, '_EventStartDate', true );
+			$event_end_date   = get_post_meta( $post_id, '_EventEndDate', true );
 
 			$events_in_month[] = (object) array(
-				'ID'             => $post->ID,
+				'ID'             => $post_id,
 				'EventStartDate' => $event_start_date,
 				'EventEndDate'   => $event_end_date,
 			);
@@ -706,8 +705,6 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	 * @param array    $new_posts New posts array from EP
 	 * @param array    $ep_query  EP query arguments
 	 * @param WP_Query $query     Query object
-	 *
-	 * @todo Remove this when EP adds support for it in https://github.com/10up/ElasticPress/pull/903
 	 */
 	public function add_ep_support_orderby_post__in( $new_posts, $ep_query, $query ) {
 
