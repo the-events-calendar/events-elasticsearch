@@ -776,7 +776,7 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			$new_posts = $ep_wp_query->filter_the_posts( $posts, $query );
 		}
 
-		if ( $doing_pre_query && 'ids' === $query->get( 'fields' ) ) {
+		if ( $doing_pre_query && $new_posts && 'ids' === $query->get( 'fields' ) ) {
 			$new_posts = wp_list_pluck( $new_posts, 'ID' );
 		}
 
