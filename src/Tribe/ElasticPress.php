@@ -671,12 +671,24 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$args = array(
 			'post_type'        => Tribe__Events__Main::POSTTYPE,
 			'fields'           => 'ids',
-			'posts_per_page'   => 50000,
+			'posts_per_page'   => 500,
 			'start_date'       => $start_date,
 			'end_date'         => $end_date,
 			'ep_integrate'     => true,
 			'suppress_filters' => false,
 		);
+
+		/**
+		 * Filter the args used to get Events from Elasticsearch using WP_Query.
+		 *
+		 * @param array      $args            WP_Query arguments to use to get Events from Elasticsearch
+		 * @param null|array $events_in_month An array of events in month (default null, run the SQL query like normal)
+		 * @param string     $start_date      The start date to filter the queried events by
+		 * @param string     $end_date        The end date to filter the queried events by
+		 *
+		 * @since TBD
+		 */
+		$args = apply_filters( 'tribe_events_elasticsearch_month_view_args', $args, $events_in_month, $start_date, $end_date );
 
 		$event_query = new WP_Query( $args );
 
