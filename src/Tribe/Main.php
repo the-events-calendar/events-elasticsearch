@@ -13,7 +13,7 @@ class Tribe__Events__Elasticsearch__Main {
 	 *
 	 * @var string
 	 */
-	const VERSION = '0.1';
+	const VERSION = '1.0.0-beta1';
 
 	/**
 	 * Required Events Calendar Version.
