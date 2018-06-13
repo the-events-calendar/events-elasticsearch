@@ -1,2 +1,3 @@
 # events-elasticsearch
-Tickets for Community Events
+
+Learn more here: https://theeventscalendar.com/product/elastic-events/
