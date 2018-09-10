@@ -1,6 +1,6 @@
 {
   "name": "events-elasticsearch",
-  "version": "1.0.0-beta1",
+  "version": "1.0.1",
   "repository": "git@github.com:moderntribe/events-elasticsearch.git",
   "_zipname": "the-events-calendar-elasticsearch",
   "_zipfoldername": "the-events-calendar-elasticsearch",
