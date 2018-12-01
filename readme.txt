@@ -1,7 +1,7 @@
 === The Events Calendar: Elasticsearch Integration ===
 
 Contributors: ModernTribe, sc0ttkclark
-Tags: widget, events, simple, tooltips, grid, month, list, calendar, event, venue, community, registration, api, dates, date, plugin, posts, sidebar, template, theme, time, google maps, google, maps, conference, workshop, concert, meeting, seminar, summit, forum, shortcode, The Events Calendar, The Events Calendar PRO, Community Events, tickets, RSVP, registration
+Tags: elasticsearch, elasticpress, the-events-calendar
 Requires at least: 3.9
 Stable tag: 1.0.2
 Requires PHP: 5.6
@@ -9,7 +9,7 @@ Tested up to: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Elasticsearch Integration is an add-on for The Events Calendar, Community Events, Event Tickets, and Tickets Plus. Users submitting events via Community Events can now add tickets to their events, and the site admin can collect fees from ticket sales.
+Elasticsearch Integration is an add-on for The Events Calendar and Events Calendar PRO.
 
 == Description ==
 
@@ -41,9 +41,9 @@ All of our online documentation can be found on <a href="http://m.tri.be/eu">our
 
 Some docs you may find particularly useful are:
 
-* <a href="http://m.tri.be/18l-">New User Primer: Elasticsearch Integration</a>
-* <a href="http://m.tri.be/18m1">Configuring Elasticsearch Integration</a>
-* <a href="http://m.tri.be/18m0">Elasticsearch Integration: Tracking sales & getting paid</a>
+* <a href="#">New User Primer: Elasticsearch Integration</a>
+* <a href="#">Configuring Elasticsearch Integration</a>
+* <a href="#">Elasticsearch Integration: Tracking sales & getting paid</a>
 
 Tutorials are available at http://m.tri.be/44
 
