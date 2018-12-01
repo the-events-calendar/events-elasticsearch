@@ -864,9 +864,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$latlng   = $args['tribe_geofence']['latlng'];
 		$geofence = $args['tribe_geofence']['geofence_radio'];
 
-		$formatted_args['query']['bool']['must'][] = array(
-			'distance' => sprintf( '%dkm', (int) $geofence ),
-			'location' => array(
+		$formatted_args['query']['filtered']['filter']['geo_distance'] = array(
+			'distance'       => sprintf( '%dkm', (int) $geofence ),
+			'tribe_geopoint' => array(
 				'lat' => (float) $latlng['lat'],
 				'lon' => (float) $latlng['lng'],
 			),
