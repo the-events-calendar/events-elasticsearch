@@ -831,6 +831,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			'ep_integrate'   => true,
 		);
 
+		$geo_loc_instance = Tribe__Events__Pro__Geo_Loc::instance();
+
+		// Avoid recursion issues.
+		remove_action( 'tribe_events_pre_get_posts', array( $geo_loc_instance, 'setup_geoloc_in_query' ) );
+
 		$venue_query = new WP_Query( $args );
 
 		$posts = $venue_query->posts;
@@ -840,6 +845,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 			$venues = array_map( 'absint', $venues );
 		}
+
+		add_action( 'tribe_events_pre_get_posts', array( $geo_loc_instance, 'setup_geoloc_in_query' ) );
 
 		return $venues;
 
