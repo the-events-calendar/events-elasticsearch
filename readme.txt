@@ -1,27 +1,21 @@
 === The Events Calendar: Elasticsearch Integration ===
 
 Contributors: ModernTribe, sc0ttkclark
-Tags: widget, events, simple, tooltips, grid, month, list, calendar, event, venue, community, registration, api, dates, date, plugin, posts, sidebar, template, theme, time, google maps, google, maps, conference, workshop, concert, meeting, seminar, summit, forum, shortcode, The Events Calendar, The Events Calendar PRO, Community Events, tickets, RSVP, registration
+Tags: elasticsearch, elasticpress, the-events-calendar
 Requires at least: 3.9
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 5.6
 Tested up to: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Elasticsearch Integration is an add-on for The Events Calendar, Community Events, Event Tickets, and Tickets Plus. Users submitting events via Community Events can now add tickets to their events, and the site admin can collect fees from ticket sales.
+Elasticsearch Integration is an add-on for The Events Calendar and Events Calendar PRO.
 
 == Description ==
 
 = The Events Calendar: Elasticsearch Integration =
 
-* Frontend user ticket creation for events
-* Users can create free or paid tickets
-* Admin may choose to collect flat fee or percentage from ticket sales
-* Admin and event organizers can view sales and attendee reports
-* Admin can use PayPal split payments or collect all the funds and distribute themselves
-
-Note: you'll need to have the latest versions of <a href="http://m.tri.be/3j">The Events Calendar</a>, <a href=“http://m.tri.be/18ks”>Community Events</a>, <a href=“https://wordpress.org/plugins/event-tickets/”>Event Tickets</a>, and <a href="http://m.tri.be/18nq">Tickets Plus</a> installed for this plugin to function.
+Note: you'll need to have the latest versions of <a href="http://m.tri.be/3j">The Events Calendar</a> and <a href="http://wordpress.org/plugins/elasticpress/">ElasticPress</a> installed for this plugin to function.
 
 == Installation ==
 
@@ -34,25 +28,22 @@ Note: you'll need to have the latest versions of <a href="http://m.tri.be/3j">Th
 
 = Requirements =
 
-* PHP 5.2.4 or greater (recommended: PHP 5.4 or greater)
+* PHP 5.6 or greater (recommended: PHP 5.4 or greater)
 * WordPress 3.9 or above
-* jQuery 1.11.x
-* The Events Calendar 3.12.4 or above
-* Community Events 3.12.1 or above
-* Event Tickets 4.0 or above
-* Tickets Plus 4.0 or above
+* The Events Calendar 4.5.4 or above
+* ElasticPress 2.5 or above
 
 == Documentation ==
 
-Elasticsearch Integration extends the functionality of Modern Tribe's The Events Calendar (http://m.tri.be/3j), Community Events, Event Tickets, and Tickets Plus to allow for frontend event submission with tickets on your WordPress site.
+Elasticsearch Integration extends the functionality of Modern Tribe's The Events Calendar (http://m.tri.be/3j).
 
 All of our online documentation can be found on <a href="http://m.tri.be/eu">our documentation site</a>.
 
 Some docs you may find particularly useful are:
 
-* <a href="http://m.tri.be/18l-">New User Primer: Elasticsearch Integration</a>
-* <a href="http://m.tri.be/18m1">Configuring Elasticsearch Integration</a>
-* <a href="http://m.tri.be/18m0">Elasticsearch Integration: Tracking sales & getting paid</a>
+* <a href="#">New User Primer: Elasticsearch Integration</a>
+* <a href="#">Configuring Elasticsearch Integration</a>
+* <a href="#">Elasticsearch Integration: Tracking sales & getting paid</a>
 
 Tutorials are available at http://m.tri.be/44
 
@@ -80,50 +71,7 @@ The plugin is produced by <a href="http://m.tri.be/3i">Modern Tribe Inc</a>.
 
 = Current Contributors =
 
-<a href="https://profiles.wordpress.org/barryhughes">Barry Hughes</a>
-<a href="https://profiles.wordpress.org/brianjessee">Brian Jessee</a>
-<a href="https://profiles.wordpress.org/brook-tribe">Brook Harding</a>
-<a href="https://profiles.wordpress.org/cliffpaulick">Clifford Paulick</a>
-<a href="https://profiles.wordpress.org/MZAWeb">Daniel Dvorkin</a>
-<a href="https://profiles.wordpress.org/geoffgraham">Geoff Graham</a>
-<a href="https://profiles.wordpress.org/ggwicz">George Gecewicz</a>
-<a href="https://profiles.wordpress.org/bordoni">Gustavo Bordoni</a>
-<a href="https://profiles.wordpress.org/jazbek">Jessica Yazbek</a>
-<a href="https://profiles.wordpress.org/joshlimecuda">Josh Mallard</a>
-<a href="https://profiles.wordpress.org/leahkoerper">Leah Koerper</a>
-<a href="https://profiles.wordpress.org/lucatume">Luca Tumedei</a>
-<a href="https://profiles.wordpress.org/borkweb">Matthew Batchelder</a>
-<a href="https://profiles.wordpress.org/neillmcshea">Neill McShea</a>
-<a href="https://profiles.wordpress.org/mastromktg">Nick Mastromattei</a>
-<a href="https://profiles.wordpress.org/nicosantos”>Nico Santo</a>
-<a href="https://profiles.wordpress.org/peterchester">Peter Chester</a>
-<a href="https://profiles.wordpress.org/roblagatta">Rob La Gatta</a>
-<a href="https://profiles.wordpress.org/reid.peifer">Reid Peifer</a>
-<a href="https://profiles.wordpress.org/shane.pearlman">Shane Pearlman</a>
-<a href="https://profiles.wordpress.org/thatdudebutch">Wayne Stratton</a>
-<a href="https://profiles.wordpress.org/zbtirrell">Zachary Tirrell</a>
-
-= Past Contributors =
-
-<a href="https://profiles.wordpress.org/caseypatrickdriscoll">Casey Driscoll</a>
-<a href="https://profiles.wordpress.org/ckpicker">Casey Picker</a>
-<a href="https://profiles.wordpress.org/dancameron">Dan Cameron</a>
-<a href="https://profiles.wordpress.org/jkudish">Joachim Kudish</a>
-<a href="https://profiles.wordpress.org/jgadbois">John Gadbois</a>
-<a href="https://profiles.wordpress.org/jonahcoyote">Jonah West</a>
-<a href="https://profiles.wordpress.org/jbrinley">Jonathan Brinley</a>
-<a href="httpss://profiles.wordpress.org/justinendler/">Justin Endler</a>
-<a href="https://profiles.wordpress.org/kellykathryn">Kelly Groves</a>
-<a href="https://profiles.wordpress.org/kelseydamas">Kelsey Damas</a>
-<a href="https://profiles.wordpress.org/kyleunzicker">Kyle Unzicker</a>
-<a href="https://profiles.wordpress.org/mdbitz">Matthew Denton</a>
-<a href="https://profiles.wordpress.org/mattwiebe">Matt Wiebe</a>
-<a href="https://profiles.wordpress.org/mat-lipe">Mat Lipe</a>
-<a href="https://profiles.wordpress.org/nickciske">Nick Ciske</a>
-<a href="https://profiles.wordpress.org/paulhughes01">Paul Hughes</a>
-<a href="https://profiles.wordpress.org/ryancurban">Ryan Urban</a>
-<a href="https://profiles.wordpress.org/faction23">Samuel Estok</a>
-<a href="https://profiles.wordpress.org/codearachnid">Timothy Wood</a>
+<a href="https://profiles.wordpress.org/sc0ttkclark">Scott Kingsley Clark</a>
 
 = Translations =
 
@@ -141,6 +89,7 @@ Our Free Plugins:
 * <a href="http://wordpress.org/plugins/blog-copier/" target="_blank">Blog Copier</a>
 * <a href="http://wordpress.org/plugins/image-rotation-repair/" target="_blank">Image Rotation Widget</a>
 * <a href="http://wordpress.org/plugins/widget-builder/" target="_blank">Widget Builder</a>
+* <a href="http://m.tri.be/18m2" target="_blank">The Events Calendar: Elasticsearch Integration</a>
 
 Our Premium Plugins:
 
@@ -148,12 +97,19 @@ Our Premium Plugins:
 * <a href="http://m.tri.be/18nq" target="_blank">Event Tickets Plus</a>
 * <a href="http://m.tri.be/2e" target="_blank">The Events Calendar: Eventbrite Tickets</a>
 * <a href="http://m.tri.be/2g" target="_blank">The Events Calendar: Community Events</a>
-* <a href="http://m.tri.be/18m2" target="_blank">The Events Calendar: Elasticsearch Integration</a>
 * <a href="http://m.tri.be/2h" target="_blank">The Events Calendar: Facebook Events</a>
 * <a href="http://m.tri.be/fa" target="_blank">The Events Calendar: Filter Bar</a>
 * <a href="http://m.tri.be/18h9" target="_blank">The Events Calendar: iCal Importer</a>
 
 == Changelog ==
+
+= [1.0.2] 2018-11-30 =
+
+* Fixes for the Maps view in Events Calendar PRO [116500]
+
+= [1.0.1] 2018-09-10 =
+
+* Coverage for more of The Events Calendar and Events Calendar PRO queries
 
 = [1.0] 2018-07-13 =
 

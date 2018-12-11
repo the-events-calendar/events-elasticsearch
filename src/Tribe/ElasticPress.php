@@ -46,8 +46,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		// Whitelist meta keys
 		add_filter( 'ep_prepare_meta_whitelist_key', array( $this, 'whitelist_meta_keys' ), 10, 3 );
 
-		// Override ElasticPress post_date used with _EventStartDate
-		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_post_date' ), 10, 2 );
+		// Override ElasticPress post_date used with _EventStartDate and setup Geo data
+		add_filter( 'ep_post_sync_args', array( $this, 'override_ep_event_data' ), 10, 2 );
 
 		// Add ElasticPress support for orderby=>post__in
 		add_action( 'ep_wp_query_search', array( $this, 'add_ep_support_orderby_post__in' ), 10, 3 );
@@ -615,14 +615,14 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 	}
 
 	/**
-	 * Override ElasticPress post_date used with _EventStartDate.
+	 * Override ElasticPress post_date used with _EventStartDate and setup Geo data.
 	 *
 	 * @param array $post_args Post arguments sent to Elasticsearch for indexing
 	 * @param int   $post_id   Post ID
 	 *
 	 * @return array
 	 */
-	public function override_ep_post_date( $post_args, $post_id ) {
+	public function override_ep_event_data( $post_args, $post_id ) {
 
 		if ( Tribe__Events__Main::POSTTYPE === $post_args['post_type'] ) {
 			$start_date = get_post_meta( $post_id, '_EventStartDate', true );
@@ -633,6 +633,16 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 				$post_args['post_date']     = $start_date;
 				$post_args['post_date_gmt'] = Tribe__Events__Timezones::to_utc( $start_date, $site_tz );
+			}
+
+			// Add geo coordinates (if any)
+			$geo = tribe_get_coordinates( $post_id );
+
+			if ( $geo && ! empty( $geo['lat'] ) && ! empty( $geo['lng'] ) ) {
+				$post_args['tribe_geopoint'] = array(
+					'lat' => $geo['lat'],
+					'lon' => $geo['lng'],
+				);
 			}
 		}
 
@@ -831,6 +841,11 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 			'ep_integrate'   => true,
 		);
 
+		$geo_loc_instance = Tribe__Events__Pro__Geo_Loc::instance();
+
+		// Avoid recursion issues.
+		remove_action( 'tribe_events_pre_get_posts', array( $geo_loc_instance, 'setup_geoloc_in_query' ) );
+
 		$venue_query = new WP_Query( $args );
 
 		$posts = $venue_query->posts;
@@ -840,6 +855,8 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 
 			$venues = array_map( 'absint', $venues );
 		}
+
+		add_action( 'tribe_events_pre_get_posts', array( $geo_loc_instance, 'setup_geoloc_in_query' ) );
 
 		return $venues;
 
@@ -864,9 +881,9 @@ class Tribe__Events__Elasticsearch__ElasticPress {
 		$latlng   = $args['tribe_geofence']['latlng'];
 		$geofence = $args['tribe_geofence']['geofence_radio'];
 
-		$formatted_args['query']['bool']['must'][] = array(
-			'distance' => sprintf( '%dkm', (int) $geofence ),
-			'location' => array(
+		$formatted_args['query']['filtered']['filter']['geo_distance'] = array(
+			'distance'       => sprintf( '%dkm', (int) $geofence ),
+			'tribe_geopoint' => array(
 				'lat' => (float) $latlng['lat'],
 				'lon' => (float) $latlng['lng'],
 			),
