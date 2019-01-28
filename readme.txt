@@ -103,6 +103,10 @@ Our Premium Plugins:
 
 == Changelog ==
 
+= [TBD] TBD =
+
+* Tweak - Update plugin header [121573]
+
 = [1.0.2] 2018-11-30 =
 
 * Fixes for the Maps view in Events Calendar PRO [116500]
