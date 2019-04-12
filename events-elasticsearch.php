@@ -1,13 +1,15 @@
 <?php
-/*
-Plugin Name: The Events Calendar: Elasticsearch Integration
-Description: This add-on provides Elasticsearch integration for The Events Calendar with the ElasticPress plugin.
-Version: 1.0.2
-Author: Modern Tribe, Inc.
-Author URI: http://m.tri.be/21
-Text Domain: tribe-events-elasticsearch
-License: GPLv2 or later
-*/
+/**
+ * Plugin Name: The Events Calendar: Elasticsearch Integration
+ * Plugin URI:  http://m.tri.be/1ack
+ * Description: This add-on provides Elasticsearch integration for The Events Calendar with the ElasticPress plugin.
+ * Version:     1.0.2
+ * Author:      Modern Tribe, Inc.
+ * Author URI:  http://m.tri.be/21
+ * Text Domain: tribe-events-elasticsearch
+ * License:     GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 /*
 Copyright 2017 by Modern Tribe Inc and the contributors
