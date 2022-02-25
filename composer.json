@@ -1,17 +1,30 @@
 {
-  "name": "Tribe SaaS",
-  "type": "project",
-  "description": "Tribe SaaS plugin",
-  "license": "Private",
+  "name": "the-events-calendar/events-elasticsearch",
+  "type": "wordpress-plugin",
+  "description": "Elasticsearch Integration for The Events Calendar plugins",
+  "license": "GPL-2.0",
   "config": {
     "vendor-dir": "vendor",
     "preferred-install": "dist"
   },
   "require": {
-    "elasticsearch/elasticsearch": "~5.0"
+    "elasticsearch/elasticsearch": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "TEC\\": "src/TEC"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "preferred-install": "dist",
+    "platform": {
+      "php": "7.1"
+    }
   },
   "require-dev": {
-    "codeception/codeception": "~2.2.12",
-    "lucatume/wp-browser": "~1.20.1"
+    "codeception/codeception": "^4.0",
+    "lucatume/wp-browser": "^3.0.14"
   }
 }
